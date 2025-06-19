@@ -68,6 +68,48 @@
             outline: none;
             transform: translateY(-2px);
         }
+        .admin-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;
+        }
+        .add-gmail-form, .gmail-list {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 1.8em; color: #2d3748; margin-bottom: 25px; text-align: center;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+        .form-input {
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;
+            font-size: 16px; transition: border-color 0.3s ease;
+        }
+        .form-input:focus { outline: none; border-color: #667eea; }
+        .submit-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white; border: none; padding: 15px 30px; border-radius: 25px;
+            cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background: linear-gradient(45deg, #38a169, #2f855a);
+            transform: translateY(-2px);
+        }
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 10px;
+            color: white; font-weight: bold; z-index: 1001; animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .notification.success {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+        }
+        .notification.error {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+        }
         /* Modal Deposit */
         #depositModal {
             display: none;
@@ -83,14 +125,11 @@
             background: #fff;
             padding: 28px 24px;
             border-radius: 14px;
-            max-width: 370px;
+            max-width: 600px;
             width: 100%;
             margin: auto;
             position: relative;
             box-shadow: 0 4px 24px #0002;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
         #closeDepositModal {
             position: absolute;
@@ -101,80 +140,37 @@
             cursor: pointer;
             color: #888;
         }
-        .deposit-status {
-            margin-bottom: 10px;
-            font-weight: bold;
+        .deposit-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 10px 0;
+        }
+        .deposit-table th, .deposit-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
             text-align: center;
         }
-        .status-active {
+        .deposit-table th {
+            background: #667eea;
             color: #fff;
-            background: #48bb78;
-            padding: 4px 16px;
-            border-radius: 12px;
-            display: inline-block;
         }
-        .status-inactive {
-            color: #fff;
-            background: #e53e3e;
-            padding: 4px 16px;
-            border-radius: 12px;
-            display: inline-block;
-        }
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; margin-bottom: 6px; font-weight: bold; color: #2d3748; }
-        .form-input {
-            width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;
-            font-size: 15px; transition: border-color 0.3s ease;
-        }
-        .form-input:focus { outline: none; border-color: #667eea; }
-        .form-btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .submit-btn, .edit-btn {
-            flex: 1;
-            padding: 10px 0;
+        .deposit-table tr:nth-child(even) { background: #f2f2f2; }
+        .action-btn {
+            padding: 5px 12px;
             border-radius: 8px;
             border: none;
             font-weight: bold;
-            font-size: 1em;
             cursor: pointer;
-            transition: background 0.2s;
+            margin: 0 2px;
         }
-        .submit-btn {
-            background: #48bb78;
-            color: #fff;
-        }
-        .submit-btn:disabled {
-            background: #ccc;
-            color: #888;
-            cursor: not-allowed;
-        }
-        .submit-btn:hover:enabled { background: #38a169; }
-        .edit-btn {
-            background: #ffd700;
-            color: #744210;
-        }
-        .edit-btn:hover { background: #e6c200; }
-        .status-btn {
-            margin: 0 auto 10px auto;
-            display: block;
-            padding: 6px 18px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .status-btn.active { background: #48bb78; color: #fff; }
-        .status-btn.inactive { background: #e53e3e; color: #fff; }
+        .edit-btn { background: #ffd700; color: #744210; }
+        .delete-btn { background: #e53e3e; color: #fff; }
+        .status-btn-active { background: #48bb78; color: #fff; }
+        .status-btn-inactive { background: #e53e3e; color: #fff; }
         #depositNotif {
-            margin-top: 10px;
+            margin-top: 12px;
             min-height: 20px;
             font-size: 0.98em;
-            text-align: center;
         }
     </style>
     <script>
@@ -211,29 +207,70 @@
           <div class="modal-content">
             <button id="closeDepositModal" title="Tutup">&times;</button>
             <h2 style="margin-bottom:10px;">Data Deposit User</h2>
-            <form id="depositForm" autocomplete="off">
+            <form id="depositForm" autocomplete="off" style="margin-bottom:18px;">
                 <input type="hidden" id="deposit_id">
-                <div class="deposit-status" id="depositStatus"></div>
-                <div class="form-group">
-                    <label class="form-label">World Name</label>
+                <div style="display:flex;gap:10px;">
                     <input type="text" class="form-input" id="world_name" placeholder="Nama World" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Owner Name</label>
                     <input type="text" class="form-input" id="owner_name" placeholder="Nama Owner" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Bot Name</label>
                     <input type="text" class="form-input" id="bot_name" placeholder="Nama Bot" required>
                 </div>
-                <button type="button" class="status-btn" id="statusBtn"></button>
-                <div class="form-btn-row">
+                <div style="margin-top:10px;display:flex;gap:10px;">
                     <button type="submit" class="submit-btn" id="depositSubmitBtn">Tambah Deposit</button>
                     <button type="button" class="edit-btn" id="editBtn" style="display:none;">Edit</button>
                 </div>
                 <div id="depositNotif"></div>
             </form>
+            <table class="deposit-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>World</th>
+                        <th>Owner</th>
+                        <th>Bot</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="depositTableBody">
+                    <tr><td colspan="6">Memuat data...</td></tr>
+                </tbody>
+            </table>
           </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="add-gmail-form">
+                <h2 class="section-title">➕ Tambah Gmail Baru</h2>
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="newEmail" placeholder="example@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="text" class="form-input" id="newPassword" placeholder="password123">
+                </div>
+                <button class="submit-btn" id="add-btn">➕ Tambah ke Stok</button>
+                <div class="form-group" style="margin-top:30px;">
+                    <label class="form-label">Harga per akun (World Lock):</label>
+                    <input type="number" class="form-input" id="price-input" min="1" value="5">
+                    <button class="submit-btn" id="set-price-btn" style="margin-top:10px;">Set Harga</button>
+                </div>
+            </div>
+            <div class="gmail-list">
+                <h2 class="section-title">📦 Daftar Gmail Stock</h2>
+                <div style="margin-bottom:15px;">
+                    <button class="nav-btn" id="refresh-btn">🔄 Refresh</button>
+                    <button class="nav-btn" id="clear-sold-btn">🗑️ Clear Sold</button>
+                    <button class="nav-btn" id="clear-all-btn">🗑️ Clear All</button>
+                </div>
+                <div id="stockTableContent"></div>
+            </div>
+        </div>
+        <div class="admin-section">
+            <div class="gmail-list" style="grid-column: 1 / span 2;">
+                <h2 class="section-title">📝 Activity Log</h2>
+                <div id="activityLog"></div>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -250,58 +287,24 @@
     const closeDepositModal = document.getElementById('closeDepositModal');
     const depositForm = document.getElementById('depositForm');
     const depositNotif = document.getElementById('depositNotif');
+    const depositTableBody = document.getElementById('depositTableBody');
     const depositSubmitBtn = document.getElementById('depositSubmitBtn');
     const editBtn = document.getElementById('editBtn');
-    const statusBtn = document.getElementById('statusBtn');
-    const depositStatus = document.getElementById('depositStatus');
-    let depositData = null;
-    let editMode = false;
+    let editDepositId = null;
 
     depositBtn.onclick = () => {
       depositModal.style.display = 'flex';
       depositNotif.textContent = '';
-      loadDeposit();
+      depositForm.reset();
+      depositSubmitBtn.disabled = false;
+      editBtn.style.display = "none";
+      editDepositId = null;
+      loadDeposits();
     };
     closeDepositModal.onclick = () => {
       depositModal.style.display = 'none';
-      editMode = false;
+      editDepositId = null;
     };
-
-    async function loadDeposit() {
-      depositForm.reset();
-      depositData = null;
-      editMode = false;
-      depositSubmitBtn.disabled = false;
-      editBtn.style.display = "none";
-      statusBtn.style.display = "none";
-      depositStatus.innerHTML = '';
-      const { data, error } = await supabase.from('user_deposits').select('*').order('id', { ascending: false });
-      if (error) {
-        depositNotif.textContent = 'Gagal memuat data deposit';
-        return;
-      }
-      if (data && data.length > 0) {
-        depositData = data[0];
-        document.getElementById('deposit_id').value = depositData.id;
-        document.getElementById('world_name').value = depositData.world_name;
-        document.getElementById('owner_name').value = depositData.owner_name;
-        document.getElementById('bot_name').value = depositData.bot_name;
-        depositStatus.innerHTML = depositData.status
-          ? '<span class="status-active">Active</span>'
-          : '<span class="status-inactive">Inactive</span>';
-        statusBtn.style.display = "block";
-        statusBtn.textContent = depositData.status ? "Set Inactive" : "Set Active";
-        statusBtn.className = "status-btn " + (depositData.status ? "active" : "inactive");
-        depositSubmitBtn.disabled = true;
-        editBtn.style.display = "block";
-      } else {
-        depositForm.reset();
-        depositStatus.innerHTML = '';
-        statusBtn.style.display = "none";
-        depositSubmitBtn.disabled = false;
-        editBtn.style.display = "none";
-      }
-    }
 
     depositForm.onsubmit = async function(e) {
       e.preventDefault();
@@ -315,21 +318,17 @@
         return;
       }
 
-      if (depositData && !editMode) {
-        depositNotif.textContent = 'Sudah ada data deposit, silakan tekan Edit!';
-        return;
-      }
-
       try {
-        if (editMode && depositData) {
+        if (editDepositId) {
           // Edit deposit
           const { error } = await supabase.from('user_deposits').update({
             world_name, owner_name, bot_name
-          }).eq('id', depositData.id);
+          }).eq('id', editDepositId);
           if (!error) {
             depositNotif.textContent = 'Deposit berhasil diubah!';
-            editMode = false;
-            setTimeout(() => { loadDeposit(); }, 1200);
+            editDepositId = null;
+            depositForm.reset();
+            setTimeout(() => { loadDeposits(); }, 1200);
           } else {
             depositNotif.textContent = 'Gagal mengubah deposit: ' + (error.message || '');
           }
@@ -340,7 +339,8 @@
           }]);
           if (!error) {
             depositNotif.textContent = 'Deposit berhasil dikirim!';
-            setTimeout(() => { loadDeposit(); }, 1200);
+            depositForm.reset();
+            setTimeout(() => { loadDeposits(); }, 1200);
           } else {
             depositNotif.textContent = 'Gagal mengirim deposit: ' + (error.message || '');
           }
@@ -350,19 +350,71 @@
       }
     };
 
-    editBtn.onclick = function() {
-      editMode = true;
-      depositSubmitBtn.disabled = false;
+    async function loadDeposits() {
+      depositTableBody.innerHTML = '<tr><td colspan="6">Memuat data...</td></tr>';
+      const { data, error } = await supabase.from('user_deposits').select('*').order('id', { ascending: false });
+      if (error || !data) {
+        depositTableBody.innerHTML = '<tr><td colspan="6">Gagal memuat data</td></tr>';
+        return;
+      }
+      if (data.length === 0) {
+        depositTableBody.innerHTML = '<tr><td colspan="6">Belum ada data deposit.</td></tr>';
+        return;
+      }
+      depositTableBody.innerHTML = data.map(row => `
+        <tr>
+          <td>${row.id}</td>
+          <td>${row.world_name}</td>
+          <td>${row.owner_name}</td>
+          <td>${row.bot_name}</td>
+          <td>
+            <button class="action-btn ${row.status ? 'status-btn-active' : 'status-btn-inactive'}" onclick="toggleStatus(${row.id}, ${row.status})">
+              ${row.status ? 'Active' : 'Inactive'}
+            </button>
+          </td>
+          <td>
+            <button class="action-btn edit-btn" onclick="editDeposit(${row.id}, '${escapeHtml(row.world_name)}', '${escapeHtml(row.owner_name)}', '${escapeHtml(row.bot_name)}')">Edit</button>
+            <button class="action-btn delete-btn" onclick="deleteDeposit(${row.id})">Hapus</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;");
+    }
+
+    window.editDeposit = function(id, world, owner, bot) {
+      document.getElementById('deposit_id').value = id;
+      document.getElementById('world_name').value = world;
+      document.getElementById('owner_name').value = owner;
+      document.getElementById('bot_name').value = bot;
+      editDepositId = id;
+      editBtn.style.display = "inline-block";
       depositSubmitBtn.textContent = "Simpan Perubahan";
-      editBtn.style.display = "none";
+      depositSubmitBtn.disabled = false;
     };
 
-    statusBtn.onclick = async function() {
-      if (!depositData) return;
-      const newStatus = !depositData.status;
-      await supabase.from('user_deposits').update({ status: newStatus }).eq('id', depositData.id);
-      loadDeposit();
+    editBtn.onclick = function() {
+      depositForm.onsubmit(new Event('submit'));
     };
+
+    window.deleteDeposit = async function(id) {
+      if (!confirm('Yakin ingin menghapus deposit ini?')) return;
+      await supabase.from('user_deposits').delete().eq('id', id);
+      loadDeposits();
+    };
+
+    window.toggleStatus = async function(id, status) {
+      await supabase.from('user_deposits').update({ status: !status }).eq('id', id);
+      loadDeposits();
+    };
+
+    loadDeposits();
     </script>
 </body>
 </html>
