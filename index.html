@@ -172,18 +172,20 @@
             </div>
         </div>
 
-        <!-- MENU TAB BUTTONS -->
+        <!-- MENU TAB BUTTONS (LENGKAP 7 TAB) -->
         <div class="menu-tabs">
             <button class="tab-btn active" onclick="showTab('stock')">Stock Gmail</button>
             <button class="tab-btn" onclick="showTab('sales')">Penjualan</button>
             <button class="tab-btn" onclick="showTab('activities')">Aktivitas</button>
             <button class="tab-btn" onclick="showTab('users')">Users</button>
             <button class="tab-btn" onclick="showTab('deposits')">Deposit</button>
+            <button class="tab-btn" onclick="showTab('donation_logs')">Donation Logs</button>
+            <button class="tab-btn" onclick="showTab('settings')">Settings</button>
         </div>
         <!-- END MENU TAB BUTTONS -->
 
         <div id="tab-content" style="margin-bottom:30px;">
-            <!-- Konten tiap tab akan dimunculkan di sini oleh file JS lain -->
+            <!-- Konten tiap tab akan dimunculkan di sini oleh JS -->
         </div>
 
         <div class="admin-section">
@@ -237,14 +239,30 @@
         localStorage.removeItem('gt_session');
         window.location = "login.html";
     }
-    // Tab menu logic
-    function showTab(tab) {
+    // Tab menu logic (LENGKAP 7 TAB)
+    async function showTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.textContent.toLowerCase().includes(tab));
-        if (btn) btn.classList.add('active');
-        document.getElementById('tab-content').innerHTML = `<div style="text-align:center;color:#888;">Memuat data <b>${tab}</b>...</div>`;
-        // Panggil fungsi JS eksternal jika sudah ada
-        if (window.renderTabContent) window.renderTabContent(tab);
+        const btns = document.querySelectorAll('.tab-btn');
+        const tabNames = ['stock','sales','activities','users','deposits','donation_logs','settings'];
+        btns[tabNames.indexOf(tab)].classList.add('active');
+        const tabContent = document.getElementById('tab-content');
+        tabContent.innerHTML = `<div style="text-align:center;color:#888;">Memuat data <b>${tab.replace('_',' ')}</b>...</div>`;
+        // Mapping tab ke file
+        const tabMap = {
+            stock: 'stock_items.html',
+            sales: 'daily_sales.html',
+            activities: 'activities.html',
+            users: 'users.html',
+            deposits: 'user_deposits.html',
+            donation_logs: 'donation_logs.html',
+            settings: 'settings.html'
+        };
+        const file = tabMap[tab] || 'stock_items.html';
+        fetch(file)
+            .then(res => res.text())
+            .then(html => {
+                tabContent.innerHTML = html;
+            });
     }
     window.onload = function() { showTab('stock'); }
     </script>
