@@ -68,6 +68,48 @@
             outline: none;
             transform: translateY(-2px);
         }
+        .admin-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;
+        }
+        .add-gmail-form, .gmail-list {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 1.8em; color: #2d3748; margin-bottom: 25px; text-align: center;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+        .form-input {
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;
+            font-size: 16px; transition: border-color 0.3s ease;
+        }
+        .form-input:focus { outline: none; border-color: #667eea; }
+        .submit-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white; border: none; padding: 15px 30px; border-radius: 25px;
+            cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background: linear-gradient(45deg, #38a169, #2f855a);
+            transform: translateY(-2px);
+        }
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 10px;
+            color: white; font-weight: bold; z-index: 1001; animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .notification.success {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+        }
+        .notification.error {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+        }
         /* Modal Deposit */
         #depositModal {
             display: none;
@@ -240,6 +282,42 @@
                 <div id="depositNotif"></div>
             </form>
           </div>
+        </div>
+
+        <!-- FORM & LIST LAINNYA Tetap Ada -->
+        <div class="admin-section">
+            <div class="add-gmail-form">
+                <h2 class="section-title">➕ Tambah Gmail Baru</h2>
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="newEmail" placeholder="example@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="text" class="form-input" id="newPassword" placeholder="password123">
+                </div>
+                <button class="submit-btn" id="add-btn">➕ Tambah ke Stok</button>
+                <div class="form-group" style="margin-top:30px;">
+                    <label class="form-label">Harga per akun (World Lock):</label>
+                    <input type="number" class="form-input" id="price-input" min="1" value="5">
+                    <button class="submit-btn" id="set-price-btn" style="margin-top:10px;">Set Harga</button>
+                </div>
+            </div>
+            <div class="gmail-list">
+                <h2 class="section-title">📦 Daftar Gmail Stock</h2>
+                <div style="margin-bottom:15px;">
+                    <button class="nav-btn" id="refresh-btn">🔄 Refresh</button>
+                    <button class="nav-btn" id="clear-sold-btn">🗑️ Clear Sold</button>
+                    <button class="nav-btn" id="clear-all-btn">🗑️ Clear All</button>
+                </div>
+                <div id="stockTableContent"></div>
+            </div>
+        </div>
+        <div class="admin-section">
+            <div class="gmail-list" style="grid-column: 1 / span 2;">
+                <h2 class="section-title">📝 Activity Log</h2>
+                <div id="activityLog"></div>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
