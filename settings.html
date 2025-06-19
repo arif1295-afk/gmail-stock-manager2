@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #6c757d; color: #fff; }
+    tr:nth-child(even) { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h2>Settings</h2>
+  <table id="settings-table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    async function loadSettings() {
+      const { data, error } = await supabase.from('settings').select('*');
+      const tbody = document.querySelector('#settings-table tbody');
+      tbody.innerHTML = '';
+      if (data) {
+        data.forEach(row => {
+          tbody.innerHTML += `<tr>
+            <td>${row.key}</td>
+            <td>${row.value}</td>
+          </tr>`;
+        });
+      }
+    }
+
+    loadSettings();
+
+    supabase.channel('public:settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
+        loadSettings();
+      })
+      .subscribe();
+  </script>
+</body>
+</html>

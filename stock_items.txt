@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Items</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #17a2b8; color: #fff; }
+    tr:nth-child(even) { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h2>Stock Items</h2>
+  <table id="stock-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Status</th>
+        <th>Added Date</th>
+        <th>Sold Date</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    async function loadStock() {
+      const { data, error } = await supabase.from('stock_items').select('*').order('created_at', { ascending: false });
+      const tbody = document.querySelector('#stock-table tbody');
+      tbody.innerHTML = '';
+      if (data) {
+        data.forEach(row => {
+          tbody.innerHTML += `<tr>
+            <td>${row.id}</td>
+            <td>${row.email}</td>
+            <td>${row.password}</td>
+            <td>${row.status}</td>
+            <td>${row.added_date ? new Date(row.added_date).toLocaleString() : ''}</td>
+            <td>${row.sold_date ? new Date(row.sold_date).toLocaleString() : ''}</td>
+            <td>${row.created_at ? new Date(row.created_at).toLocaleString() : ''}</td>
+          </tr>`;
+        });
+      }
+    }
+
+    loadStock();
+
+    supabase.channel('public:stock_items')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_items' }, payload => {
+        loadStock();
+      })
+      .subscribe();
+  </script>
+</body>
+</html>

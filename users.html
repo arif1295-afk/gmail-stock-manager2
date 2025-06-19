@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Users</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #dc3545; color: #fff; }
+    tr:nth-child(even) { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h2>Users</h2>
+  <table id="users-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>GrowID</th>
+        <th>Password</th>
+        <th>Gmail</th>
+        <th>Is Admin</th>
+        <th>Balance</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    async function loadUsers() {
+      const { data, error } = await supabase.from('users').select('*').order('balance', { ascending: false });
+      const tbody = document.querySelector('#users-table tbody');
+      tbody.innerHTML = '';
+      if (data) {
+        data.forEach(row => {
+          tbody.innerHTML += `<tr>
+            <td>${row.id}</td>
+            <td>${row.growid}</td>
+            <td>${row.password}</td>
+            <td>${row.gmail}</td>
+            <td>${row.is_admin ? 'Yes' : 'No'}</td>
+            <td>${row.balance}</td>
+          </tr>`;
+        });
+      }
+    }
+
+    loadUsers();
+
+    supabase.channel('public:users')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+        loadUsers();
+      })
+      .subscribe();
+  </script>
+</body>
+</html>
