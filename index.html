@@ -139,7 +139,7 @@
             font-size: 1em;
             transition: background 0.2s, transform 0.2s;
         }
-        .tab-btn.active, .tab-btn:focus {
+        .tab-btn:focus, .tab-btn.active {
             background: linear-gradient(45deg, #4a5568, #6b46c1);
             outline: none;
             transform: translateY(-2px);
@@ -172,23 +172,17 @@
             </div>
         </div>
 
-        <!-- MENU TAB BUTTONS (LENGKAP 7 TAB) -->
-        <!-- ...existing code... -->
-<div class="menu-tabs">
-    <button class="tab-btn" onclick="window.location.href='stock_items.html'">Stock Gmail</button>
-    <button class="tab-btn" onclick="window.location.href='daily_sales.html'">Penjualan</button>
-    <button class="tab-btn" onclick="window.location.href='activities.html'">Aktivitas</button>
-    <button class="tab-btn" onclick="window.location.href='users.html'">Users</button>
-    <button class="tab-btn" onclick="window.location.href='user_deposits.html'">Deposit</button>
-    <button class="tab-btn" onclick="window.location.href='donation_logs.html'">Donation Logs</button>
-    <button class="tab-btn" onclick="window.location.href='settings.html'">Settings</button>
-</div>
-<!-- ...existing code... -->
-        <!-- END MENU TAB BUTTONS -->
-
-        <div id="tab-content" style="margin-bottom:30px;">
-            <!-- Konten tiap tab akan dimunculkan di sini oleh JS -->
+        <!-- MENU TAB BUTTONS (7 tombol, pindah page) -->
+        <div class="menu-tabs">
+            <button class="tab-btn" onclick="window.location.href='stock_items.html'">Stock Gmail</button>
+            <button class="tab-btn" onclick="window.location.href='daily_sales.html'">Penjualan</button>
+            <button class="tab-btn" onclick="window.location.href='activities.html'">Aktivitas</button>
+            <button class="tab-btn" onclick="window.location.href='users.html'">Users</button>
+            <button class="tab-btn" onclick="window.location.href='user_deposits.html'">Deposit</button>
+            <button class="tab-btn" onclick="window.location.href='donation_logs.html'">Donation Logs</button>
+            <button class="tab-btn" onclick="window.location.href='settings.html'">Settings</button>
         </div>
+        <!-- END MENU TAB BUTTONS -->
 
         <div class="admin-section">
             <div class="add-gmail-form">
@@ -241,32 +235,6 @@
         localStorage.removeItem('gt_session');
         window.location = "login.html";
     }
-    // Tab menu logic (LENGKAP 7 TAB)
-    async function showTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        const btns = document.querySelectorAll('.tab-btn');
-        const tabNames = ['stock','sales','activities','users','deposits','donation_logs','settings'];
-        btns[tabNames.indexOf(tab)].classList.add('active');
-        const tabContent = document.getElementById('tab-content');
-        tabContent.innerHTML = `<div style="text-align:center;color:#888;">Memuat data <b>${tab.replace('_',' ')}</b>...</div>`;
-        // Mapping tab ke file
-        const tabMap = {
-            stock: 'stock_items.html',
-            sales: 'daily_sales.html',
-            activities: 'activities.html',
-            users: 'users.html',
-            deposits: 'user_deposits.html',
-            donation_logs: 'donation_logs.html',
-            settings: 'settings.html'
-        };
-        const file = tabMap[tab] || 'stock_items.html';
-        fetch(file)
-            .then(res => res.text())
-            .then(html => {
-                tabContent.innerHTML = html;
-            });
-    }
-    window.onload = function() { showTab('stock'); }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="js/supabase.js"></script>
