@@ -96,20 +96,19 @@
             background: linear-gradient(45deg, #38a169, #2f855a);
             transform: translateY(-2px);
         }
-        .notification {
-            position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 10px;
-            color: white; font-weight: bold; z-index: 1001; animation: slideInRight 0.3s ease;
+        .gmail-item {
+            background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
         }
-        @keyframes slideInRight {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
+        .gmail-info { flex: 1; }
+        .gmail-email { font-weight: bold; color: #2d3748; margin-bottom: 5px; }
+        .gmail-details { color: #718096; font-size: 0.9em; }
+        .gmail-actions { display: flex; gap: 10px; }
+        .stock-badge {
+            padding: 4px 8px; border-radius: 10px; font-size: 0.8em; font-weight: bold;
         }
-        .notification.success {
-            background: linear-gradient(45deg, #48bb78, #38a169);
-        }
-        .notification.error {
-            background: linear-gradient(45deg, #e53e3e, #c53030);
-        }
+        .stock-available { background: #c6f6d5; color: #22543d; }
+        .stock-sold { background: #fed7d7; color: #742a2a; }
         /* Modal Deposit */
         #depositModal {
             display: none;
@@ -222,6 +221,16 @@
             min-height: 20px;
             font-size: 0.98em;
             text-align: center;
+        }
+        #activityLog {
+            max-height: 250px;
+            overflow-y: auto;
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 18px 16px;
+            font-size: 1em;
+            margin-top: 10px;
+            border: 1px solid #e2e8f0;
         }
     </style>
     <script>
@@ -411,7 +420,6 @@
 
       try {
         if (editMode && depositData) {
-          // Edit deposit
           const { error } = await supabase.from('user_deposits').update({
             world_name, owner_name, bot_name
           }).eq('id', depositData.id);
@@ -423,7 +431,6 @@
             depositNotif.textContent = 'Gagal mengubah deposit: ' + (error.message || '');
           }
         } else {
-          // Tambah deposit
           const { error } = await supabase.from('user_deposits').insert([{
             world_name, owner_name, bot_name, status: true
           }]);
@@ -460,6 +467,66 @@
       depositNotif.textContent = 'Deposit berhasil dihapus!';
       setTimeout(() => { loadDeposit(); }, 1000);
     };
+
+    // === LOGIKA PENAMBAHAN STOCK DAN ACTIVITY LOG ===
+
+    const addBtn = document.getElementById('add-btn');
+    const newEmail = document.getElementById('newEmail');
+    const newPassword = document.getElementById('newPassword');
+    const activityLog = document.getElementById('activityLog');
+
+    addBtn.onclick = async function() {
+        const email = newEmail.value.trim();
+        const password = newPassword.value.trim();
+        if (!email || !password) {
+            showActivity('Gagal menambah stock: Email dan Password wajib diisi.', 'error');
+            return;
+        }
+        const { error } = await supabase.from('stock_items').insert([{ email, password, status: 'available' }]);
+        if (!error) {
+            showActivity(`Tambah Gmail: ${email}`, 'success');
+            newEmail.value = '';
+            newPassword.value = '';
+            loadStockItems();
+        } else {
+            showActivity('Gagal menambah stock: ' + (error.message || ''), 'error');
+        }
+    };
+
+    function showActivity(msg, type = 'info') {
+        const time = new Date().toLocaleTimeString();
+        const color = type === 'success' ? '#48bb78' : type === 'error' ? '#e53e3e' : '#333';
+        const el = document.createElement('div');
+        el.style.marginBottom = '6px';
+        el.innerHTML = `<span style="color:#888;">[${time}]</span> <span style="color:${color};">${msg}</span>`;
+        activityLog.prepend(el);
+    }
+
+    async function loadStockItems() {
+        const stockTableContent = document.getElementById('stockTableContent');
+        const { data, error } = await supabase.from('stock_items').select('*').order('id', { ascending: false });
+        if (error || !data) {
+            stockTableContent.innerHTML = '<div>Gagal memuat data stock.</div>';
+            return;
+        }
+        if (data.length === 0) {
+            stockTableContent.innerHTML = '<div>Belum ada stock Gmail.</div>';
+            return;
+        }
+        stockTableContent.innerHTML = data.map(item => `
+            <div class="gmail-item">
+                <div class="gmail-info">
+                    <div class="gmail-email">${item.email}</div>
+                    <div class="gmail-details">Password: ${item.password}</div>
+                </div>
+                <div class="gmail-actions">
+                    <span class="stock-badge stock-available">Available</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    loadStockItems();
     </script>
 </body>
 </html>
