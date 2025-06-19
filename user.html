@@ -335,7 +335,7 @@
             background: #fff;
             padding: 28px 24px;
             border-radius: 14px;
-            max-width: 340px;
+            max-width: 400px;
             width: 100%;
             margin: auto;
             position: relative;
@@ -344,7 +344,6 @@
             flex-direction: column;
             gap: 8px;
         }
-        #depositModal input[type="text"],
         #depositModal input[type="number"] {
             width: 100%;
             margin-bottom: 10px;
@@ -376,15 +375,30 @@
             cursor: pointer;
             color: #888;
         }
-        #depositNotif {
-            margin-top: 12px;
-            min-height: 20px;
-            font-size: 0.98em;
-        }
         #captchaError {
             color: red;
             margin-top: 8px;
             font-size: 0.97em;
+        }
+        table.deposit-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table.deposit-table th, table.deposit-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        table.deposit-table th {
+            background: #667eea;
+            color: #fff;
+        }
+        table.deposit-table tr:nth-child(even) { background: #f2f2f2; }
+        .no-data {
+            color: #888;
+            text-align: center;
+            padding: 20px 0;
         }
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; gap: 20px; }
@@ -446,13 +460,10 @@
           <button id="captchaOkBtn" style="margin-bottom:6px;">Verifikasi</button>
           <div id="captchaError"></div>
         </div>
-        <form id="depositForm" style="display:none;">
-          <input type="text" id="worldName" placeholder="Nama World Deposit" required autocomplete="off">
-          <input type="text" id="botName" placeholder="Nama Bot" required autocomplete="off">
-          <input type="text" id="ownerName" placeholder="Nama Owner World" required autocomplete="off">
-          <button type="submit">Kirim Deposit</button>
-        </form>
-        <div id="depositNotif"></div>
+        <div id="depositDataContainer" style="display:none;">
+            <h3 style="margin-bottom:10px;">Data Deposit Anda</h3>
+            <div id="depositData"></div>
+        </div>
       </div>
     </div>
 
@@ -720,8 +731,8 @@
     const closeDepositModal = document.getElementById('closeDepositModal');
     const captchaOkBtn = document.getElementById('captchaOkBtn');
     const captchaContainer = document.getElementById('captchaContainer');
-    const depositForm = document.getElementById('depositForm');
-    const depositNotif = document.getElementById('depositNotif');
+    const depositDataContainer = document.getElementById('depositDataContainer');
+    const depositData = document.getElementById('depositData');
     const mathAnswerInput = document.getElementById('mathAnswer');
     let mathA = 0, mathB = 0, mathOp = '+', mathResult = 0;
 
@@ -741,8 +752,7 @@
     depositBtn.onclick = () => {
       depositModal.style.display = 'flex';
       captchaContainer.style.display = 'block';
-      depositForm.style.display = 'none';
-      depositNotif.textContent = '';
+      depositDataContainer.style.display = 'none';
       generateMathCaptcha();
     };
 
@@ -750,12 +760,12 @@
       depositModal.style.display = 'none';
     };
 
-    captchaOkBtn.onclick = () => {
+    captchaOkBtn.onclick = async () => {
       const userAnswer = parseInt(mathAnswerInput.value, 10);
       if (userAnswer === mathResult) {
         captchaContainer.style.display = 'none';
-        depositForm.style.display = 'block';
-        document.getElementById('worldName').focus();
+        depositDataContainer.style.display = 'block';
+        await showDepositData();
       } else {
         document.getElementById('captchaError').textContent = 'Jawaban salah, coba lagi!';
         generateMathCaptcha();
@@ -766,37 +776,44 @@
       if (e.key === 'Enter') captchaOkBtn.click();
     });
 
-    depositForm.onsubmit = async function(e) {
-      e.preventDefault();
-      depositNotif.textContent = 'Mengirim...';
-      const growid = session.growid;
-      const world_name = document.getElementById('worldName').value.trim();
-      const bot_name = document.getElementById('botName').value.trim();
-      const owner_name = document.getElementById('ownerName').value.trim();
-
-      if (!world_name || !bot_name || !owner_name) {
-        depositNotif.textContent = 'Semua field wajib diisi!';
+    async function showDepositData() {
+      const session = JSON.parse(localStorage.getItem('gt_session') || '{}');
+      const growid = session.growid || '';
+      depositData.innerHTML = 'Memuat data...';
+      const { data, error } = await supabase
+        .from('user_deposits')
+        .select('*')
+        .eq('growid', growid)
+        .order('id', { ascending: false });
+      if (error || !data || data.length === 0) {
+        depositData.innerHTML = '<div class="no-data">Belum ada data deposit.</div>';
         return;
       }
-
-      try {
-        const res = await fetch('/.netlify/functions/deposit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ growid, world_name, bot_name, owner_name })
-        });
-        const data = await res.json();
-        if (data.success) {
-          depositNotif.textContent = 'Deposit berhasil dikirim!';
-          depositForm.reset();
-          setTimeout(() => { depositModal.style.display = 'none'; }, 2000);
-        } else {
-          depositNotif.textContent = 'Gagal mengirim deposit: ' + (data.message || '');
-        }
-      } catch (error) {
-        depositNotif.textContent = 'Terjadi kesalahan: ' + error.message;
-      }
-    };
+      depositData.innerHTML = `
+        <table class="deposit-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>World</th>
+                    <th>Owner</th>
+                    <th>Bot</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.map(row => `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.world_name || ''}</td>
+                        <td>${row.owner_name || ''}</td>
+                        <td>${row.bot_name || ''}</td>
+                        <td>${row.status ? 'Active' : 'Inactive'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+      `;
+    }
     </script>
 </body>
 </html>

@@ -38,7 +38,7 @@
         .admin-section {
             display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;
         }
-        .add-gmail-form, .gmail-list {
+        .add-gmail-form, .gmail-list, .add-deposit-form {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -165,7 +165,7 @@
             <h1>📧 GT Gmail Stock Admin</h1>
             <p>Panel Admin untuk Mengelola Stok Gmail (Pembayaran World Lock)</p>
             <div class="nav-buttons">
-                <a href="javascript:void(0)" class="nav-btn" onclick="window.history.back()">🏠 Kembali ke Marketplace</a>
+                <!-- Tombol marketplace dihapus -->
                 <button class="nav-btn" id="export-btn">📊 Export Data</button>
                 <button class="nav-btn" id="backup-btn">📥 Backup Data</button>
                 <button class="logout-btn" onclick="logout()">Logout</button>
@@ -183,6 +183,24 @@
             <button class="tab-btn" onclick="window.location.href='settings.html'">Settings</button>
         </div>
         <!-- END MENU TAB BUTTONS -->
+
+        <!-- Tambahkan form deposit di bawah menu tab -->
+        <div class="add-deposit-form" style="margin-bottom:30px; max-width:500px; margin-left:auto; margin-right:auto;">
+            <h2 class="section-title">➕ Tambah Deposit User</h2>
+            <div class="form-group">
+                <label class="form-label">World Name:</label>
+                <input type="text" class="form-input" id="world_name" placeholder="Nama World">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Owner Name:</label>
+                <input type="text" class="form-input" id="owner_name" placeholder="Nama Owner">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Bot Name:</label>
+                <input type="text" class="form-input" id="bot_name" placeholder="Nama Bot">
+            </div>
+            <button class="submit-btn" id="add-deposit-btn">➕ Tambah Deposit</button>
+        </div>
 
         <div class="admin-section">
             <div class="add-gmail-form">
