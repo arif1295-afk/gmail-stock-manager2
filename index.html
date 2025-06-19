@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT Gmail Stock Admin Panel</title>
     <style>
-        /* ...style dari versi sebelumnya... */
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -128,7 +127,7 @@
             background: #fff;
             padding: 28px 24px;
             border-radius: 14px;
-            max-width: 340px;
+            max-width: 400px;
             width: 100%;
             margin: auto;
             position: relative;
@@ -156,7 +155,12 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        #depositModal button:hover {
+        #depositModal button:disabled {
+            background: #ccc;
+            color: #888;
+            cursor: not-allowed;
+        }
+        #depositModal button:hover:enabled {
             background: #38a169;
         }
         #closeDepositModal {
@@ -173,11 +177,10 @@
             min-height: 20px;
             font-size: 0.98em;
         }
-        /* Deposit Table */
         .deposit-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 30px 0;
+            margin: 20px 0 0 0;
         }
         .deposit-table th, .deposit-table td {
             border: 1px solid #e2e8f0;
@@ -198,7 +201,6 @@
             margin: 0 2px;
         }
         .edit-btn { background: #ffd700; color: #744210; }
-        .delete-btn { background: #e53e3e; color: #fff; }
         .status-btn-active { background: #48bb78; color: #fff; }
         .status-btn-inactive { background: #e53e3e; color: #fff; }
         @media (max-width: 768px) {
@@ -229,12 +231,11 @@
             </div>
         </div>
 
-        <!-- MENU TAB BUTTONS (tanpa Aktivitas) -->
+        <!-- MENU TAB BUTTONS (tanpa tombol Deposit ke page lain) -->
         <div class="menu-tabs">
             <button class="tab-btn" onclick="window.location.href='stock_items.html'">Stock Gmail</button>
             <button class="tab-btn" onclick="window.location.href='daily_sales.html'">Penjualan</button>
             <button class="tab-btn" onclick="window.location.href='users.html'">Users</button>
-            <button class="tab-btn" onclick="window.location.href='user_deposits.html'">Deposit</button>
             <button class="tab-btn" onclick="window.location.href='donation_logs.html'">Donation Logs</button>
             <button class="tab-btn" onclick="window.location.href='settings.html'">Settings</button>
         </div>
@@ -244,22 +245,8 @@
         <div id="depositModal">
           <div class="modal-content">
             <button id="closeDepositModal" title="Tutup">&times;</button>
-            <h2 style="margin-bottom:10px;" id="depositModalTitle">Tambah Deposit User</h2>
-            <form id="depositForm">
-              <input type="hidden" id="deposit_id">
-              <input type="text" id="world_name" placeholder="Nama World" required autocomplete="off">
-              <input type="text" id="owner_name" placeholder="Nama Owner" required autocomplete="off">
-              <input type="text" id="bot_name" placeholder="Nama Bot" required autocomplete="off">
-              <button type="submit" id="depositSubmitBtn">Kirim Deposit</button>
-            </form>
-            <div id="depositNotif"></div>
-          </div>
-        </div>
-
-        <!-- Deposit Table -->
-        <div>
-            <h2 class="section-title">📥 Data Deposit User</h2>
-            <div style="overflow-x:auto;">
+            <h2 style="margin-bottom:10px;" id="depositModalTitle">Data Deposit User</h2>
+            <div id="depositTableContainer">
                 <table class="deposit-table">
                     <thead>
                         <tr>
@@ -276,6 +263,15 @@
                     </tbody>
                 </table>
             </div>
+            <form id="depositForm" style="margin-top:20px;">
+              <input type="hidden" id="deposit_id">
+              <input type="text" id="world_name" placeholder="Nama World" required autocomplete="off">
+              <input type="text" id="owner_name" placeholder="Nama Owner" required autocomplete="off">
+              <input type="text" id="bot_name" placeholder="Nama Bot" required autocomplete="off">
+              <button type="submit" id="depositSubmitBtn">Tambah Deposit</button>
+            </form>
+            <div id="depositNotif"></div>
+          </div>
         </div>
 
         <div class="admin-section">
@@ -332,15 +328,17 @@
     const depositModalTitle = document.getElementById('depositModalTitle');
     const depositSubmitBtn = document.getElementById('depositSubmitBtn');
     let editDepositId = null;
+    let depositDataArr = [];
 
     depositBtn.onclick = () => {
       depositModal.style.display = 'flex';
       depositNotif.textContent = '';
       depositForm.reset();
-      depositModalTitle.textContent = 'Tambah Deposit User';
-      depositSubmitBtn.textContent = 'Kirim Deposit';
+      depositModalTitle.textContent = 'Data Deposit User';
+      depositSubmitBtn.textContent = 'Tambah Deposit';
       document.getElementById('deposit_id').value = '';
       editDepositId = null;
+      loadDeposits();
     };
     closeDepositModal.onclick = () => {
       depositModal.style.display = 'none';
@@ -367,19 +365,23 @@
           }).eq('id', id);
           if (!error) {
             depositNotif.textContent = 'Deposit berhasil diubah!';
-            setTimeout(() => { depositModal.style.display = 'none'; loadDeposits(); }, 1200);
+            setTimeout(() => { loadDeposits(); depositForm.reset(); editDepositId = null; }, 1200);
           } else {
             depositNotif.textContent = 'Gagal mengubah deposit: ' + (error.message || '');
           }
         } else {
-          // Tambah deposit
+          // Tambah deposit (jika belum ada data)
+          if (depositDataArr.length > 0) {
+            depositNotif.textContent = 'Sudah ada data deposit, hanya bisa edit!';
+            return;
+          }
           const { error } = await supabase.from('user_deposits').insert([{
             world_name, owner_name, bot_name, status: true
           }]);
           if (!error) {
             depositNotif.textContent = 'Deposit berhasil dikirim!';
             depositForm.reset();
-            setTimeout(() => { depositModal.style.display = 'none'; loadDeposits(); }, 1200);
+            setTimeout(() => { loadDeposits(); }, 1200);
           } else {
             depositNotif.textContent = 'Gagal mengirim deposit: ' + (error.message || '');
           }
@@ -392,15 +394,21 @@
     async function loadDeposits() {
       depositTableBody.innerHTML = '<tr><td colspan="6">Memuat data...</td></tr>';
       const { data, error } = await supabase.from('user_deposits').select('*').order('id', { ascending: false });
+      depositDataArr = data || [];
       if (error || !data) {
         depositTableBody.innerHTML = '<tr><td colspan="6">Gagal memuat data</td></tr>';
+        depositSubmitBtn.disabled = false;
         return;
       }
       if (data.length === 0) {
         depositTableBody.innerHTML = '<tr><td colspan="6">Belum ada data deposit.</td></tr>';
+        depositSubmitBtn.disabled = false;
+        depositSubmitBtn.textContent = 'Tambah Deposit';
         return;
       }
-      depositTableBody.innerHTML = data.map(row => `
+      // Hanya tampilkan satu data (data pertama)
+      const row = data[0];
+      depositTableBody.innerHTML = `
         <tr>
           <td>${row.id}</td>
           <td>${row.world_name}</td>
@@ -413,10 +421,17 @@
           </td>
           <td>
             <button class="action-btn edit-btn" onclick="editDeposit(${row.id}, '${escapeHtml(row.world_name)}', '${escapeHtml(row.owner_name)}', '${escapeHtml(row.bot_name)}')">Edit</button>
-            <button class="action-btn delete-btn" onclick="deleteDeposit(${row.id})">Hapus</button>
           </td>
         </tr>
-      `).join('');
+      `;
+      // Disable tambah deposit jika sudah ada data
+      depositSubmitBtn.disabled = true;
+      depositSubmitBtn.textContent = 'Tambah Deposit (Sudah Ada)';
+      // Jika sedang edit, enable tombol
+      if (editDepositId) {
+        depositSubmitBtn.disabled = false;
+        depositSubmitBtn.textContent = 'Simpan Perubahan';
+      }
     }
 
     // Escape HTML for safe rendering in attributes
@@ -429,7 +444,6 @@
     }
 
     window.editDeposit = function(id, world, owner, bot) {
-      depositModal.style.display = 'flex';
       depositNotif.textContent = '';
       depositModalTitle.textContent = 'Edit Deposit User';
       depositSubmitBtn.textContent = 'Simpan Perubahan';
@@ -438,12 +452,7 @@
       document.getElementById('owner_name').value = owner;
       document.getElementById('bot_name').value = bot;
       editDepositId = id;
-    };
-
-    window.deleteDeposit = async function(id) {
-      if (!confirm('Yakin ingin menghapus deposit ini?')) return;
-      await supabase.from('user_deposits').delete().eq('id', id);
-      loadDeposits();
+      depositSubmitBtn.disabled = false;
     };
 
     window.toggleStatus = async function(id, status) {
@@ -451,7 +460,15 @@
       loadDeposits();
     };
 
-    loadDeposits();
+    // Modal close reset edit mode
+    closeDepositModal.onclick = () => {
+      depositModal.style.display = 'none';
+      editDepositId = null;
+    };
+
+    // Load deposit data saat modal dibuka
+    // (Sudah dipanggil di depositBtn.onclick)
+
     </script>
 </body>
 </html>
