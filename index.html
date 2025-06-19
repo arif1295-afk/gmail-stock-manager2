@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT Gmail Stock Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .header h1 { color: #4a5568; font-size: 2.5em; margin-bottom: 10px; }
+        .nav-buttons {
+            display: flex; gap: 15px; justify-content: center; margin-top: 20px;
+        }
+        .nav-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white; border: none; padding: 12px 25px; border-radius: 25px;
+            cursor: pointer; font-weight: bold; text-decoration: none; transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+            transform: translateY(-2px);
+        }
+        .admin-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;
+        }
+        .add-gmail-form, .gmail-list {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 1.8em; color: #2d3748; margin-bottom: 25px; text-align: center;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+        .form-input {
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;
+            font-size: 16px; transition: border-color 0.3s ease;
+        }
+        .form-input:focus { outline: none; border-color: #667eea; }
+        .submit-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white; border: none; padding: 15px 30px; border-radius: 25px;
+            cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background: linear-gradient(45deg, #38a169, #2f855a);
+            transform: translateY(-2px);
+        }
+        .gmail-item {
+            background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .gmail-info { flex: 1; }
+        .gmail-email { font-weight: bold; color: #2d3748; margin-bottom: 5px; }
+        .gmail-details { color: #718096; font-size: 0.9em; }
+        .gmail-actions { display: flex; gap: 10px; }
+        .delete-btn {
+            padding: 6px 12px; border: none; border-radius: 15px; cursor: pointer;
+            font-size: 0.8em; font-weight: bold; background: #e53e3e; color: white; transition: all 0.2s ease;
+        }
+        .delete-btn:hover { background: #c53030; }
+        .stock-badge {
+            padding: 4px 8px; border-radius: 10px; font-size: 0.8em; font-weight: bold;
+        }
+        .stock-available { background: #c6f6d5; color: #22543d; }
+        .stock-sold { background: #fed7d7; color: #742a2a; }
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 10px;
+            color: white; font-weight: bold; z-index: 1001; animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .notification.success {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+        }
+        .notification.error {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+        }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); z-index: 1000;
+        }
+        .modal-content {
+            background: white; margin: 5% auto; padding: 30px; border-radius: 20px;
+            width: 90%; max-width: 400px; position: relative; text-align: center;
+        }
+        .modal-close {
+            position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #718096;
+        }
+        .modal-close:hover { color: #2d3748; }
+        .logout-btn {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(45deg, #c53030, #a81d1d);
+            transform: translateY(-2px);
+        }
+        /* TAB MENU BUTTONS */
+        .menu-tabs { margin-bottom: 30px; text-align: center; }
+        .tab-btn {
+            padding: 10px 28px;
+            margin-right: 10px;
+            border: none;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .tab-btn.active, .tab-btn:focus {
+            background: linear-gradient(45deg, #4a5568, #6b46c1);
+            outline: none;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 768px) {
+            .admin-section { grid-template-columns: 1fr; }
+            .nav-buttons { flex-direction: column; align-items: center; }
+            .menu-tabs { font-size: 0.95em; }
+        }
+    </style>
+    <script>
+    if (!localStorage.getItem('gt_session')) {
+        window.location = "login.html";
+    } else {
+        const session = JSON.parse(localStorage.getItem('gt_session'));
+        if (!session.isAdmin) window.location = "login.html";
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 GT Gmail Stock Admin</h1>
+            <p>Panel Admin untuk Mengelola Stok Gmail (Pembayaran World Lock)</p>
+            <div class="nav-buttons">
+                <a href="javascript:void(0)" class="nav-btn" onclick="window.history.back()">🏠 Kembali ke Marketplace</a>
+                <button class="nav-btn" id="export-btn">📊 Export Data</button>
+                <button class="nav-btn" id="backup-btn">📥 Backup Data</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- MENU TAB BUTTONS -->
+        <div class="menu-tabs">
+            <button class="tab-btn active" onclick="showTab('stock')">Stock Gmail</button>
+            <button class="tab-btn" onclick="showTab('sales')">Penjualan</button>
+            <button class="tab-btn" onclick="showTab('activities')">Aktivitas</button>
+            <button class="tab-btn" onclick="showTab('users')">Users</button>
+            <button class="tab-btn" onclick="showTab('deposits')">Deposit</button>
+        </div>
+        <!-- END MENU TAB BUTTONS -->
+
+        <div id="tab-content" style="margin-bottom:30px;">
+            <!-- Konten tiap tab akan dimunculkan di sini oleh file JS lain -->
+        </div>
+
+        <div class="admin-section">
+            <div class="add-gmail-form">
+                <h2 class="section-title">➕ Tambah Gmail Baru</h2>
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="newEmail" placeholder="example@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="text" class="form-input" id="newPassword" placeholder="password123">
+                </div>
+                <button class="submit-btn" id="add-btn">➕ Tambah ke Stok</button>
+                <div class="form-group" style="margin-top:30px;">
+                    <label class="form-label">Harga per akun (World Lock):</label>
+                    <input type="number" class="form-input" id="price-input" min="1" value="5">
+                    <button class="submit-btn" id="set-price-btn" style="margin-top:10px;">Set Harga</button>
+                </div>
+            </div>
+            <div class="gmail-list">
+                <h2 class="section-title">📦 Daftar Gmail Stock</h2>
+                <div style="margin-bottom:15px;">
+                    <button class="nav-btn" id="refresh-btn">🔄 Refresh</button>
+                    <button class="nav-btn" id="clear-sold-btn">🗑️ Clear Sold</button>
+                    <button class="nav-btn" id="clear-all-btn">🗑️ Clear All</button>
+                </div>
+                <div id="stockTableContent"></div>
+            </div>
+        </div>
+        <div class="admin-section">
+            <div class="gmail-list" style="grid-column: 1 / span 2;">
+                <h2 class="section-title">📝 Activity Log</h2>
+                <div id="activityLog"></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="stockManager.closeModal()">&times;</span>
+            <h3 id="modalTitle">Confirm Action</h3>
+            <p id="modalMessage">Are you sure?</p>
+            <div style="margin-top: 20px;">
+                <button class="submit-btn" id="confirm-action-btn" style="background:#e53e3e;">Yes</button>
+                <button class="submit-btn" id="cancel-modal-btn" style="background:#ccc; color:#333;">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    function logout() {
+        localStorage.removeItem('gt_session');
+        window.location = "login.html";
+    }
+    // Tab menu logic
+    function showTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.textContent.toLowerCase().includes(tab));
+        if (btn) btn.classList.add('active');
+        document.getElementById('tab-content').innerHTML = `<div style="text-align:center;color:#888;">Memuat data <b>${tab}</b>...</div>`;
+        // Panggil fungsi JS eksternal jika sudah ada
+        if (window.renderTabContent) window.renderTabContent(tab);
+    }
+    window.onload = function() { showTab('stock'); }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

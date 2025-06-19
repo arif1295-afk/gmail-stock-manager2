@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT Marketplace - User Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        .header h1 { color: #4a5568; font-size: 2.5em; margin-bottom: 10px; }
+        .wl-balance {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #744210;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .deposit-btn {
+            background: linear-gradient(45deg,#48bb78,#38a169);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-top: 18px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        .deposit-btn:hover {
+            background: linear-gradient(45deg,#38a169,#2f855a);
+            transform: translateY(-2px);
+        }
+        .logout-btn {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 18px;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(45deg, #c53030, #a81d1d);
+            transform: translateY(-2px);
+        }
+        .products-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 1.8em;
+            color: #2d3748;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        .product-image {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .product-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .product-price {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #744210;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .product-stock {
+            color: #48bb78;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .add-cart-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .add-cart-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #38a169, #2f855a);
+            transform: translateY(-2px);
+        }
+        .add-cart-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .cart-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .cart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+        .cart-title {
+            font-size: 1.5em;
+            color: #2d3748;
+            font-weight: bold;
+        }
+        .cart-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .cart-items {
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 0.9em;
+        }
+        .cart-item-details {
+            color: #718096;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+        .cart-item-remove {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .cart-item-remove:hover { background: #c53030; }
+        .cart-summary {
+            border-top: 2px solid #e2e8f0;
+            padding-top: 15px;
+        }
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .total-amount {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #744210;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        .checkout-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .checkout-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+            transform: translateY(-2px);
+        }
+        .checkout-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .empty-cart {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            padding: 30px 0;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 1001;
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .notification.success {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+        }
+        .notification.error {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+        }
+        .history-section {
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+        #historyTable table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        #historyTable th, #historyTable td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        #historyTable th {
+            background: #f7fafc;
+            color: #2d3748;
+        }
+        /* Modal Deposit */
+        #depositModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #0007;
+            z-index: 1002;
+            align-items: center;
+            justify-content: center;
+        }
+        #depositModal .modal-content {
+            background: #fff;
+            padding: 28px 24px;
+            border-radius: 14px;
+            max-width: 340px;
+            width: 100%;
+            margin: auto;
+            position: relative;
+            box-shadow: 0 4px 24px #0002;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        #depositModal input[type="text"],
+        #depositModal input[type="number"] {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #depositModal button {
+            padding: 10px 24px;
+            border-radius: 8px;
+            background: #48bb78;
+            color: #fff;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #depositModal button:hover {
+            background: #38a169;
+        }
+        #closeDepositModal {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+        }
+        #depositNotif {
+            margin-top: 12px;
+            min-height: 20px;
+            font-size: 0.98em;
+        }
+        #captchaError {
+            color: red;
+            margin-top: 8px;
+            font-size: 0.97em;
+        }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; gap: 20px; }
+            .cart-section { position: static; }
+        }
+    </style>
+    <script>
+    if (!localStorage.getItem('gt_session')) {
+        window.location = "login.html";
+    } else {
+        const session = JSON.parse(localStorage.getItem('gt_session'));
+        if (session.isAdmin) window.location = "index.html";
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 GT Marketplace</h1>
+            <p>Selamat datang, <span id="growid"></span>!</p>
+            <div class="wl-balance" id="wlBalance">💎 Saldo: ...</div>
+            <button id="depositBtn" class="deposit-btn">Deposit</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        <div class="products-section">
+            <h2 class="section-title">🛒 Gmail Stock Tersedia</h2>
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+        <div class="cart-section">
+            <div class="cart-header">
+                <h3 class="cart-title">🛍️ Keranjang</h3>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">Keranjang masih kosong</div>
+            </div>
+            <div class="cart-summary" id="cartSummary" style="display: none;">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span class="total-amount" id="totalAmount">0 WL</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn">💳 Checkout</button>
+            </div>
+        </div>
+        <div class="history-section">
+            <h2 class="section-title">📜 History Pembelian</h2>
+            <div id="historyTable"></div>
+        </div>
+    </div>
+
+    <!-- Modal Deposit -->
+    <div id="depositModal">
+      <div class="modal-content">
+        <button id="closeDepositModal" title="Tutup">&times;</button>
+        <div id="captchaContainer">
+          <div style="margin-bottom:10px;">Selesaikan captcha berikut:</div>
+          <div id="mathQuestion" style="margin-bottom:10px;font-weight:bold;"></div>
+          <input type="number" id="mathAnswer" placeholder="Jawaban" autocomplete="off">
+          <button id="captchaOkBtn" style="margin-bottom:6px;">Verifikasi</button>
+          <div id="captchaError"></div>
+        </div>
+        <form id="depositForm" style="display:none;">
+          <input type="text" id="worldName" placeholder="Nama World Deposit" required autocomplete="off">
+          <input type="text" id="botName" placeholder="Nama Bot" required autocomplete="off">
+          <input type="text" id="ownerName" placeholder="Nama Owner World" required autocomplete="off">
+          <button type="submit">Kirim Deposit</button>
+        </form>
+        <div id="depositNotif"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+    const session = JSON.parse(localStorage.getItem('gt_session'));
+    document.getElementById('growid').textContent = session.growid;
+
+    function logout() {
+        localStorage.removeItem('gt_session');
+        window.location = "login.html";
+    }
+
+    let products = [];
+    let cart = [];
+    let hargaGmail = 0;
+    let userBalance = 0;
+
+    async function fetchUserBalance() {
+        const { data } = await supabase
+            .from('users')
+            .select('balance')
+            .eq('growid', session.growid)
+            .maybeSingle();
+        if (data && typeof data.balance === 'number') {
+            userBalance = data.balance;
+            document.getElementById('wlBalance').textContent = `💎 Saldo: ${userBalance} WL`;
+        } else {
+            userBalance = 0;
+            document.getElementById('wlBalance').textContent = `💎 Saldo: 0 WL`;
+        }
+    }
+
+    async function fetchHargaGmail() {
+        const { data } = await supabase
+            .from('settings')
+            .select('value')
+            .eq('key', 'gmail_price')
+            .maybeSingle();
+        if (data && data.value) {
+            hargaGmail = parseInt(data.value, 10);
+        } else {
+            hargaGmail = 5;
+        }
+    }
+
+    async function fetchProducts() {
+        const { data, error } = await supabase
+            .from('stock_items')
+            .select('id,email,status')
+            .eq('status', 'available');
+        if (error) {
+            showNotification('Gagal mengambil data produk!', 'error');
+            return;
+        }
+        products = [{
+            label: "Email For Growtopia",
+            price: hargaGmail,
+            stock: (data || []).length,
+            image: "📧"
+        }];
+        renderProducts();
+    }
+
+    function renderProducts() {
+        const grid = document.getElementById('productsGrid');
+        const product = products[0];
+        if (!product || product.stock === 0) {
+            grid.innerHTML = '<div style="text-align: center; color: #718096; grid-column: 1 / -1; padding: 40px;">Tidak ada Gmail stock tersedia</div>';
+            return;
+        }
+        grid.innerHTML = `
+            <div class="product-card">
+                <div class="product-image">${product.image}</div>
+                <div class="product-name">${product.label}</div>
+                <div class="product-info">
+                    <div class="product-price">💎 ${product.price} WL</div>
+                    <div class="product-stock">Stock: ${product.stock}</div>
+                </div>
+                <button class="add-cart-btn" onclick="addToCart()" ${isInCart() || product.stock === 0 ? 'disabled' : ''}>
+                    ${isInCart() ? 'Sudah di Keranjang' : (product.stock === 0 ? '❌ Habis' : '🛒 Tambah ke Keranjang')}
+                </button>
+            </div>
+        `;
+    }
+
+    function isInCart() {
+        return cart.length > 0;
+    }
+
+    function addToCart() {
+        if (isInCart()) return;
+        const product = products[0];
+        if (!product || product.stock === 0) {
+            showNotification('Produk tidak ditemukan atau sudah habis.', 'error');
+            return;
+        }
+        if (cart.length >= Math.floor(userBalance / hargaGmail)) {
+            showNotification('Saldo tidak cukup!', 'error');
+            return;
+        }
+        cart.push({ ...product });
+        updateCartDisplay();
+        renderProducts();
+        showNotification(`${product.label} ditambahkan ke keranjang!`, 'success');
+    }
+
+    function removeFromCart() {
+        cart = [];
+        updateCartDisplay();
+        renderProducts();
+        showNotification('Item dihapus dari keranjang', 'success');
+    }
+
+    function updateCartDisplay() {
+        const cartItems = document.getElementById('cartItems');
+        const cartCount = document.getElementById('cartCount');
+        const cartSummary = document.getElementById('cartSummary');
+        const totalAmount = document.getElementById('totalAmount');
+        if (cart.length === 0) {
+            cartItems.innerHTML = '<div class="empty-cart">Keranjang masih kosong</div>';
+            cartSummary.style.display = 'none';
+            cartCount.textContent = '0';
+            return;
+        }
+        let total = cart.length * hargaGmail;
+        cartItems.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.image} ${item.label}</div>
+                    <div class="cart-item-details">1x @ ${item.price} WL = ${item.price} WL</div>
+                </div>
+                <button class="cart-item-remove" onclick="removeFromCart()">×</button>
+            </div>
+        `).join('');
+        cartCount.textContent = cart.length;
+        totalAmount.textContent = `💎 ${total} WL`;
+        cartSummary.style.display = 'block';
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (total > userBalance) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.textContent = '💳 Saldo Tidak Cukup';
+        } else {
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = '💳 Checkout';
+        }
+    }
+
+    document.getElementById('checkoutBtn').addEventListener('click', async () => {
+        if (cart.length === 0) return;
+        const total = cart.length * hargaGmail;
+        if (total > userBalance) {
+            showNotification('Saldo World Lock tidak mencukupi!', 'error');
+            return;
+        }
+        const jumlah = cart.length;
+        const res = await fetch('/.netlify/functions/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ growid: session.growid, jumlah })
+        });
+        let data;
+        try {
+            data = await res.json();
+        } catch {
+            const text = await res.text();
+            data = { success: false, message: text };
+        }
+        if (data.success) {
+            showNotification('Barang sudah dikirim ke email Anda!', 'success');
+            cart = [];
+            updateCartDisplay();
+            fetchHistory();
+        } else {
+            showNotification('Gagal checkout: ' + (data.message || data.body || ''), 'error');
+        }
+    });
+
+    async function fetchHistory() {
+        const { data, error } = await supabase
+            .from('daily_sales')
+            .select('*')
+            .eq('growid', session.growid)
+            .order('tanggal', { ascending: false });
+        const historyTable = document.getElementById('historyTable');
+        if (error || !data || data.length === 0) {
+            historyTable.innerHTML = '<div style="color:#718096;text-align:center;padding:20px;">Belum ada history pembelian.</div>';
+            return;
+        }
+        historyTable.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Jumlah</th>
+                        <th>Harga/Item</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.map(row => `
+                        <tr>
+                            <td>${new Date(row.tanggal).toLocaleString()}</td>
+                            <td>${row.jumlah}</td>
+                            <td>${row.harga} WL</td>
+                            <td>${row.total} WL</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function showNotification(message, type) {
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) existingNotification.remove();
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    (async function() {
+        await fetchUserBalance();
+        await fetchHargaGmail();
+        await fetchProducts();
+        updateCartDisplay();
+        fetchHistory();
+    })();
+
+    // === SUPABASE REALTIME ===
+    // Realtime saldo user
+    supabase
+      .channel('public:users')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'users', filter: `growid=eq.${session.growid}` },
+        payload => {
+          if (payload.new && typeof payload.new.balance === 'number') {
+            userBalance = payload.new.balance;
+            document.getElementById('wlBalance').textContent = `💎 Saldo: ${userBalance} WL`;
+            updateCartDisplay();
+          }
+        }
+      )
+      .subscribe();
+
+    // Realtime stock Gmail
+    supabase
+      .channel('public:stock_items')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'stock_items' },
+        payload => {
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    // === DEPOSIT MODAL & CAPTCHA MATEMATIKA ===
+    const depositBtn = document.getElementById('depositBtn');
+    const depositModal = document.getElementById('depositModal');
+    const closeDepositModal = document.getElementById('closeDepositModal');
+    const captchaOkBtn = document.getElementById('captchaOkBtn');
+    const captchaContainer = document.getElementById('captchaContainer');
+    const depositForm = document.getElementById('depositForm');
+    const depositNotif = document.getElementById('depositNotif');
+    const mathAnswerInput = document.getElementById('mathAnswer');
+    let mathA = 0, mathB = 0, mathOp = '+', mathResult = 0;
+
+    function generateMathCaptcha() {
+      mathA = Math.floor(Math.random() * 10) + 1;
+      mathB = Math.floor(Math.random() * 10) + 1;
+      mathOp = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+      if (mathOp === '+') mathResult = mathA + mathB;
+      if (mathOp === '-') mathResult = mathA - mathB;
+      if (mathOp === '*') mathResult = mathA * mathB;
+      document.getElementById('mathQuestion').textContent = `${mathA} ${mathOp} ${mathB} = ?`;
+      mathAnswerInput.value = '';
+      document.getElementById('captchaError').textContent = '';
+      mathAnswerInput.focus();
+    }
+
+    depositBtn.onclick = () => {
+      depositModal.style.display = 'flex';
+      captchaContainer.style.display = 'block';
+      depositForm.style.display = 'none';
+      depositNotif.textContent = '';
+      generateMathCaptcha();
+    };
+
+    closeDepositModal.onclick = () => {
+      depositModal.style.display = 'none';
+    };
+
+    captchaOkBtn.onclick = () => {
+      const userAnswer = parseInt(mathAnswerInput.value, 10);
+      if (userAnswer === mathResult) {
+        captchaContainer.style.display = 'none';
+        depositForm.style.display = 'block';
+        document.getElementById('worldName').focus();
+      } else {
+        document.getElementById('captchaError').textContent = 'Jawaban salah, coba lagi!';
+        generateMathCaptcha();
+      }
+    };
+
+    mathAnswerInput.addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') captchaOkBtn.click();
+    });
+
+    depositForm.onsubmit = async function(e) {
+      e.preventDefault();
+      depositNotif.textContent = 'Mengirim...';
+      const growid = session.growid;
+      const world_name = document.getElementById('worldName').value.trim();
+      const bot_name = document.getElementById('botName').value.trim();
+      const owner_name = document.getElementById('ownerName').value.trim();
+
+      if (!world_name || !bot_name || !owner_name) {
+        depositNotif.textContent = 'Semua field wajib diisi!';
+        return;
+      }
+
+      try {
+        const res = await fetch('/.netlify/functions/deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ growid, world_name, bot_name, owner_name })
+        });
+        const data = await res.json();
+        if (data.success) {
+          depositNotif.textContent = 'Deposit berhasil dikirim!';
+          depositForm.reset();
+          setTimeout(() => { depositModal.style.display = 'none'; }, 2000);
+        } else {
+          depositNotif.textContent = 'Gagal mengirim deposit: ' + (data.message || '');
+        }
+      } catch (error) {
+        depositNotif.textContent = 'Terjadi kesalahan: ' + error.message;
+      }
+    };
+    </script>
+</body>
+</html>

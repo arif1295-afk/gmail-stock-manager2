@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT Marketplace - Register</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; display: flex; align-items: center; justify-content: center; }
+        .auth-container { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .auth-title { text-align: center; font-size: 2em; color: #4a5568; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: bold; color: #2d3748; }
+        .form-input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: border-color 0.3s ease; }
+        .form-input:focus { outline: none; border-color: #667eea; }
+        .submit-btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: all 0.3s ease; }
+        .submit-btn:hover { background: linear-gradient(45deg, #5a67d8, #6b46c1); transform: translateY(-2px); }
+        .switch-link { display: block; text-align: center; margin-top: 18px; color: #667eea; text-decoration: none; font-weight: bold; }
+        .notification { margin-bottom: 15px; padding: 12px 18px; border-radius: 10px; color: white; font-weight: bold; background: linear-gradient(45deg, #e53e3e, #c53030); text-align: center; }
+        .notification.success { background: linear-gradient(45deg, #48bb78, #38a169); }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-title">Register User</div>
+        <div id="notif"></div>
+        <form id="registerForm">
+            <div class="form-group">
+                <label class="form-label">GrowID</label>
+                <input type="text" class="form-input" id="regGrowID" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="regPassword" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Gmail Aktif</label>
+                <input type="email" class="form-input" id="regGmail" required>
+            </div>
+            <button type="submit" class="submit-btn">Register</button>
+        </form>
+        <a href="login.html" class="switch-link">Sudah punya akun? Login</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "gmail-stock-manager",
+  "version": "1.0.0",
+  "description": "Stock Management System",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "discord.js": "^14.19.3",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.3"
+  },
+  "keywords": [
+    "stock",
+    "management",
+    "vercel"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
