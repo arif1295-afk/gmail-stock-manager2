@@ -173,15 +173,17 @@
         </div>
 
         <!-- MENU TAB BUTTONS (LENGKAP 7 TAB) -->
-        <div class="menu-tabs">
-            <button class="tab-btn active" onclick="showTab('stock')">Stock Gmail</button>
-            <button class="tab-btn" onclick="showTab('sales')">Penjualan</button>
-            <button class="tab-btn" onclick="showTab('activities')">Aktivitas</button>
-            <button class="tab-btn" onclick="showTab('users')">Users</button>
-            <button class="tab-btn" onclick="showTab('deposits')">Deposit</button>
-            <button class="tab-btn" onclick="showTab('donation_logs')">Donation Logs</button>
-            <button class="tab-btn" onclick="showTab('settings')">Settings</button>
-        </div>
+        <!-- ...existing code... -->
+<div class="menu-tabs">
+    <button class="tab-btn" onclick="window.location.href='stock_items.html'">Stock Gmail</button>
+    <button class="tab-btn" onclick="window.location.href='daily_sales.html'">Penjualan</button>
+    <button class="tab-btn" onclick="window.location.href='activities.html'">Aktivitas</button>
+    <button class="tab-btn" onclick="window.location.href='users.html'">Users</button>
+    <button class="tab-btn" onclick="window.location.href='user_deposits.html'">Deposit</button>
+    <button class="tab-btn" onclick="window.location.href='donation_logs.html'">Donation Logs</button>
+    <button class="tab-btn" onclick="window.location.href='settings.html'">Settings</button>
+</div>
+<!-- ...existing code... -->
         <!-- END MENU TAB BUTTONS -->
 
         <div id="tab-content" style="margin-bottom:30px;">
