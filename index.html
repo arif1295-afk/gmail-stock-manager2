@@ -468,7 +468,7 @@
       setTimeout(() => { loadDeposit(); }, 1000);
     };
 
-    // === LOGIKA PENAMBAHAN STOCK DAN ACTIVITY LOG ===
+    // === LOGIKA PENAMBAHAN STOCK DAN ACTIVITY LOG (SUPABASE) ===
 
     const addBtn = document.getElementById('add-btn');
     const newEmail = document.getElementById('newEmail');
@@ -479,27 +479,40 @@
         const email = newEmail.value.trim();
         const password = newPassword.value.trim();
         if (!email || !password) {
-            showActivity('Gagal menambah stock: Email dan Password wajib diisi.', 'error');
+            await addActivityLog('Gagal menambah stock: Email dan Password wajib diisi.', 'error');
+            await loadActivityLog();
             return;
         }
         const { error } = await supabase.from('stock_items').insert([{ email, password, status: 'available' }]);
         if (!error) {
-            showActivity(`Tambah Gmail: ${email}`, 'success');
+            await addActivityLog(`Tambah Gmail: ${email}`, 'success');
             newEmail.value = '';
             newPassword.value = '';
             loadStockItems();
         } else {
-            showActivity('Gagal menambah stock: ' + (error.message || ''), 'error');
+            await addActivityLog('Gagal menambah stock: ' + (error.message || ''), 'error');
         }
+        await loadActivityLog();
     };
 
-    function showActivity(msg, type = 'info') {
-        const time = new Date().toLocaleTimeString();
-        const color = type === 'success' ? '#48bb78' : type === 'error' ? '#e53e3e' : '#333';
-        const el = document.createElement('div');
-        el.style.marginBottom = '6px';
-        el.innerHTML = `<span style="color:#888;">[${time}]</span> <span style="color:${color};">${msg}</span>`;
-        activityLog.prepend(el);
+    // Fungsi menambah log ke tabel activity_logs Supabase
+    async function addActivityLog(message, type = 'info') {
+        await supabase.from('activity_logs').insert([{ message, type }]);
+    }
+
+    // Fungsi load activity log dari Supabase
+    async function loadActivityLog() {
+        const { data, error } = await supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(50);
+        if (!error && data) {
+            activityLog.innerHTML = data.map(log =>
+                `<div>
+                    <span style="color:#888;">[${new Date(log.created_at).toLocaleTimeString()}]</span>
+                    <span style="color:${log.type === 'success' ? '#48bb78' : log.type === 'error' ? '#e53e3e' : '#333'};">${log.message}</span>
+                </div>`
+            ).join('');
+        } else {
+            activityLog.innerHTML = '<div>Gagal memuat activity log.</div>';
+        }
     }
 
     async function loadStockItems() {
@@ -526,7 +539,12 @@
         `).join('');
     }
 
+    // Load data awal
     loadStockItems();
+    loadActivityLog();
+
+    // Optional: tombol refresh activity log
+    // setInterval(loadActivityLog, 10000); // auto-refresh tiap 10 detik
     </script>
 </body>
 </html>
