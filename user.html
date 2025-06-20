@@ -540,7 +540,7 @@
         }
         // Ambil jumlah di cart jika sudah ada
         const cartItem = cart[0] || { qty: 1 };
-        const maxBeli = Math.min(product.stock, Math.floor(userBalance / hargaGmail), maxQty);
+        const maxBeli = product.stock; // hanya batasi sesuai stock
         grid.innerHTML = `
             <div class="product-card">
                 <div class="product-image">${product.image}</div>
@@ -565,18 +565,21 @@
         const qtyInput = document.getElementById('qtyInput');
         let qty = parseInt(qtyInput.value, 10) || 1;
         const product = products[0];
-        const maxBeli = Math.min(product.stock, Math.floor(userBalance / hargaGmail), maxQty);
+        const maxBeli = product.stock;
         if (qty < 1) qty = 1;
         if (qty > maxBeli) qty = maxBeli;
         if (!product || product.stock === 0) {
             showNotification('Produk tidak ditemukan atau sudah habis.', 'error');
             return;
         }
+        if (qty > product.stock) {
+            showNotification('Jumlah melebihi stock!', 'error');
+            return;
+        }
         if (qty * hargaGmail > userBalance) {
             showNotification('Saldo tidak cukup!', 'error');
             return;
         }
-        // Update cart
         cart = [{ ...product, qty }];
         updateCartDisplay();
         renderProducts();
@@ -630,6 +633,10 @@
         if (cart.length === 0) return;
         const item = cart[0];
         const total = item.qty * hargaGmail;
+        if (item.qty > item.stock) {
+            showNotification('Stock tidak cukup untuk jumlah yang dipilih!', 'error');
+            return;
+        }
         if (total > userBalance) {
             showNotification('Saldo World Lock tidak mencukupi!', 'error');
             return;
