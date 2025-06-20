@@ -782,7 +782,6 @@
         'postgres_changes',
         { event: '*', schema: 'public', table: 'settings' },
         payload => {
-          console.log('Realtime event:', payload);
           if (payload.new && payload.new.key === 'gmail_price') {
             fetchHargaGmail();
           }
