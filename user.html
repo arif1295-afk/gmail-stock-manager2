@@ -782,7 +782,7 @@
         'postgres_changes',
         { event: '*', schema: 'public', table: 'settings' },
         payload => {
-          // Hanya jalankan jika key yang berubah adalah gmail_price
+          console.log('Realtime event:', payload);
           if (payload.new && payload.new.key === 'gmail_price') {
             fetchHargaGmail();
           }
