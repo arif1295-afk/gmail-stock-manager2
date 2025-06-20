@@ -33,12 +33,12 @@
                 <input class="form-input" type="text" id="growid" name="growid" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <input class="form-input" type="password" id="password" name="password" required>
+                <label class="form-label" for="gmail">Gmail</label>
+                <input class="form-input" type="email" id="gmail" name="gmail" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="mac_address">MAC Address</label>
-                <input class="form-input" type="text" id="mac_address" name="mac_address" required>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" id="password" name="password" required>
             </div>
             <button class="submit-btn" type="submit">Register</button>
         </form>
@@ -51,38 +51,16 @@
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const growid = document.getElementById('growid').value.trim();
+        const gmail = document.getElementById('gmail').value.trim();
         const password = document.getElementById('password').value;
-        const mac_address = document.getElementById('mac_address').value.trim();
 
-        // Ambil IP address dari API eksternal
-        let ip_address = '';
-        try {
-            const res = await fetch('https://api.ipify.org?format=json');
-            const ipData = await res.json();
-            ip_address = ipData.ip;
-        } catch {
-            ip_address = 'UNKNOWN';
-        }
-
-        // Simpan ke tabel users
+        // Simpan ke tabel users (id, is_admin, balance otomatis)
         const { data, error } = await supabase
             .from('users')
-            .insert([{ growid, password }]);
+            .insert([{ growid, gmail, password }]);
 
         if (error) {
             document.getElementById('registerMsg').textContent = "Registrasi gagal: " + (error.message || "Terjadi kesalahan.");
-            return;
-        }
-
-        // Simpan ke register_logs (akan gagal jika sudah 3x)
-        const { error: logError } = await supabase
-            .from('register_logs')
-            .insert([{ ip_address, mac_address }]);
-
-        if (logError) {
-            document.getElementById('registerMsg').textContent = "Registrasi gagal: " + (logError.message || "Batas register IP/MAC tercapai.");
-            // Jika gagal, hapus user yang baru saja dibuat agar tidak ada user tanpa log
-            await supabase.from('users').delete().eq('growid', growid);
             return;
         }
 
@@ -92,4 +70,3 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="js/supabase.js"></script>
 </body>
-</html>
