@@ -783,7 +783,7 @@
         { event: '*', schema: 'public', table: 'settings' },
         payload => {
           if (payload.new && payload.new.key === 'gmail_price') {
-            fetchHargaGmail();
+            window.location.reload(); // Auto refresh page
           }
         }
       )
