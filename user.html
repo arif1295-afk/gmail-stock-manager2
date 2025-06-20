@@ -820,41 +820,25 @@
 
     async function showDepositData() {
       depositData.innerHTML = 'Memuat data...';
-      // Ambil data deposit world dari tabel user_deposits
+      // Ambil data deposit world yang status aktif
       const { data, error } = await supabase
         .from('user_deposits')
-        .select('*')
+        .select('world_name,bot_name,owner_name,status')
+        .eq('status', true)
         .order('id', { ascending: false });
 
       if (error || !data || data.length === 0) {
-        depositData.innerHTML = '<div class="no-data">Belum ada data deposit world.</div>';
+        depositData.innerHTML = '<div class="no-data">Belum ada data deposit world aktif.</div>';
         return;
       }
 
-      depositData.innerHTML = `
-        <table class="deposit-table" style="width:100%;margin-top:10px;">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>World Name</th>
-              <th>Bot Name</th>
-              <th>Owner Name</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.map(row => `
-              <tr>
-                <td>${row.id}</td>
-                <td>${row.world_name}</td>
-                <td>${row.bot_name}</td>
-                <td>${row.owner_name}</td>
-                <td>${row.status ? 'Aktif' : 'Nonaktif'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
+      depositData.innerHTML = data.map(row => `
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:12px;background:#f9fafb;">
+          <div><b>World Name:</b> ${row.world_name}</div>
+          <div><b>Bot Name:</b> ${row.bot_name}</div>
+          <div><b>Owner Name:</b> ${row.owner_name}</div>
+        </div>
+      `).join('');
     }
     </script>
 </body>
