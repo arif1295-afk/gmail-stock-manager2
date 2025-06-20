@@ -171,11 +171,8 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             height: fit-content;
-            position: fixed;
-            top: 100px;
-            right: 40px;
-            width: 320px;
-            z-index: 100;
+            position: sticky;
+            top: 20px;
         }
         .cart-header {
             display: flex;
@@ -405,16 +402,7 @@
         }
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; gap: 20px; }
-            .cart-section { position: static; }
-        }
-        @media (max-width: 1200px) {
-            .cart-section {
-                position: static;
-                width: 100%;
-                right: auto;
-                top: auto;
-                margin-bottom: 20px;
-            }
+            .cart-section { position: fixed; }
         }
     </style>
     <script>
