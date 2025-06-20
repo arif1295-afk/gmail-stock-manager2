@@ -775,6 +775,18 @@
       })
       .subscribe();
 
+    // Realtime harga Gmail
+    supabase
+      .channel('public:settings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'settings', filter: 'key=eq.gmail_price' },
+        payload => {
+          fetchHargaGmail();
+        }
+      )
+      .subscribe();
+
     // === DEPOSIT MODAL & CAPTCHA MATEMATIKA ===
     const depositBtn = document.getElementById('depositBtn');
     const depositModal = document.getElementById('depositModal');
