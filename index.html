@@ -684,6 +684,41 @@
                 activityLog.innerHTML = '<div>Gagal memuat activity log.</div>';
             }
         }
+        // ...existing code...
+        const setPriceBtn = document.getElementById('set-price-btn');
+        const priceInput = document.getElementById('price-input');
+
+        // Ambil harga dari settings saat halaman dibuka
+        async function loadGmailPrice() {
+            const { data, error } = await supabase
+                .from('settings')
+                .select('value')
+                .eq('key', 'gmail_price')
+                .single();
+            if (!error && data) {
+                priceInput.value = data.value;
+            }
+        }
+        loadGmailPrice();
+
+        setPriceBtn.onclick = async function () {
+            const price = parseInt(priceInput.value);
+            if (!price || price < 1) {
+                alert('Harga tidak valid!');
+                return;
+            }
+            // Update kolom value di settings untuk key gmail_price
+            const { error } = await supabase
+                .from('settings')
+                .update({ value: price.toString() })
+                .eq('key', 'gmail_price');
+            if (!error) {
+                alert('Harga berhasil diperbarui!');
+            } else {
+                alert('Gagal memperbarui harga: ' + (error.message || ''));
+            }
+        };
+        // ...existing code...
 
         // ...existing code...
         async function loadStockItems() {
