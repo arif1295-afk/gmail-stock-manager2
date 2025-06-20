@@ -538,9 +538,8 @@
             grid.innerHTML = '<div style="text-align: center; color: #718096; grid-column: 1 / -1; padding: 40px;">Tidak ada Gmail stock tersedia</div>';
             return;
         }
-        // Ambil jumlah di cart jika sudah ada
         const cartItem = cart[0] || { qty: 1 };
-        const maxBeli = product.stock; // hanya batasi sesuai stock
+        const maxBeli = product.stock;
         grid.innerHTML = `
             <div class="product-card">
                 <div class="product-image">${product.image}</div>
@@ -549,15 +548,37 @@
                     <div class="product-price">💎 ${product.price} WL</div>
                     <div class="product-stock">Stock: ${product.stock}</div>
                 </div>
-                <div style="margin-bottom:10px;">
-                    <input type="number" id="qtyInput" min="1" max="${maxBeli}" value="${cartItem.qty || 1}" style="width:60px;padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;">
-                    <span style="font-size:0.95em;color:#888;">Jumlah</span>
+                <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <button type="button" id="qtyMinus" style="width:32px;height:32px;font-size:20px;border-radius:50%;border:none;background:#e2e8f0;cursor:pointer;">-</button>
+                    <input type="number" id="qtyInput" min="1" max="${maxBeli}" value="${cartItem.qty || 1}" style="width:60px;text-align:center;padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;font-size:1.1em;">
+                    <button type="button" id="qtyPlus" style="width:32px;height:32px;font-size:20px;border-radius:50%;border:none;background:#e2e8f0;cursor:pointer;">+</button>
                 </div>
                 <button class="add-cart-btn" onclick="addToCart()" ${product.stock === 0 ? 'disabled' : ''}>
                     ${cart.length > 0 ? 'Update Keranjang' : (product.stock === 0 ? '❌ Habis' : '🛒 Tambah ke Keranjang')}
                 </button>
             </div>
         `;
+
+        // Event tombol + -
+        setTimeout(() => {
+            const qtyInput = document.getElementById('qtyInput');
+            const qtyMinus = document.getElementById('qtyMinus');
+            const qtyPlus = document.getElementById('qtyPlus');
+            qtyMinus.onclick = () => {
+                let val = parseInt(qtyInput.value, 10) || 1;
+                if (val > 1) qtyInput.value = val - 1;
+            };
+            qtyPlus.onclick = () => {
+                let val = parseInt(qtyInput.value, 10) || 1;
+                if (val < maxBeli) qtyInput.value = val + 1;
+            };
+            qtyInput.oninput = () => {
+                let val = parseInt(qtyInput.value, 10) || 1;
+                if (val < 1) val = 1;
+                if (val > maxBeli) val = maxBeli;
+                qtyInput.value = val;
+            };
+        }, 10);
     }
 
     // Ubah addToCart agar bisa menambah/update jumlah
