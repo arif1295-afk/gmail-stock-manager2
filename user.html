@@ -473,11 +473,15 @@
 
     <!-- Floating Message Button -->
     <div id="floatingMessageBtn" style="position:fixed;bottom:32px;right:32px;z-index:1003;cursor:pointer;">
-        <img src="https://cdn-icons-png.flaticon.com/512/2462/2462719.png" alt="Message" style="width:64px;height:64px;border-radius:50%;box-shadow:0 4px 16px #0003;background:#fff;">
+        <span style="display:inline-block;width:64px;height:64px;background:#fff;border-radius:50%;box-shadow:0 4px 16px #0003;display:flex;align-items:center;justify-content:center;">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#fff"/>
+            </svg>
+        </span>
     </div>
 
     <!-- Modal Pilihan Room -->
-    <div id="messageRoomModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1004;background:#0007;align-items:center;justify-content:center;">
+    <div id="messageRoomModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:#0007;align-items:center;justify-content:center;">
         <div style="background:#fff;padding:32px 28px;border-radius:18px;max-width:340px;width:90%;box-shadow:0 8px 32px #0002;display:flex;flex-direction:column;align-items:center;gap:24px;position:relative;">
             <button id="closeMessageRoomModal" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;">&times;</button>
             <h2 style="margin-bottom:10px;color:#4a5568;">Pilih Room Chat</h2>
@@ -874,10 +878,6 @@
       }
 
       depositData.innerHTML = data.map(row => `
-        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:12px;background:#f9fafb;">
-          <div><b>World Name:</b> ${row.world_name}</div>
-          <div><b>Bot Name:</b> ${row.bot_name}</div>
-          <div><b>Owner Name:</b> ${row.owner_name}</div>
         </div>
       `).join('');
     }
@@ -893,7 +893,6 @@
     closeMessageRoomModal.onclick = () => {
         messageRoomModal.style.display = 'none';
     };
-    // Optional: close modal if click outside modal content
     messageRoomModal.onclick = (e) => {
         if (e.target === messageRoomModal) messageRoomModal.style.display = 'none';
     };
