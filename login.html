@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT Marketplace - Login</title>
+    <script>
+    // Redirect jika sudah login, sebelum apapun dirender
+    if (localStorage.getItem('gt_session')) {
+        window.location = "user.html";
+    }
+    </script>
     <style>
         body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; display: flex; align-items: center; justify-content: center; }
         .auth-container { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
@@ -14,35 +20,53 @@
         .form-input:focus { outline: none; border-color: #667eea; }
         .submit-btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: all 0.3s ease; }
         .submit-btn:hover { background: linear-gradient(45deg, #5a67d8, #6b46c1); transform: translateY(-2px); }
-        .switch-link { display: block; text-align: center; margin-top: 18px; color: #667eea; text-decoration: none; font-weight: bold; }
-        .notification { margin-bottom: 15px; padding: 12px 18px; border-radius: 10px; color: white; font-weight: bold; background: linear-gradient(45deg, #e53e3e, #c53030); text-align: center; }
-        .notification.success { background: linear-gradient(45deg, #48bb78, #38a169); }
+        .register-link { text-align: center; margin-top: 16px; }
+        .register-link a { color: #667eea; text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-title">Login Admin/User</div>
-        <div id="notif"></div>
+        <div class="auth-title">Login</div>
         <form id="loginForm">
             <div class="form-group">
-                <label class="form-label">GrowID</label>
-                <input type="text" class="form-input" id="loginGrowID" required>
+                <label class="form-label" for="growid">GrowID</label>
+                <input class="form-input" type="text" id="growid" name="growid" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="loginPassword" required>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="submit-btn">Login</button>
+            <button class="submit-btn" type="submit">Login</button>
         </form>
-        <a href="register.html" class="switch-link">Belum punya akun? Register</a>
+        <div class="register-link">
+            Belum punya akun? <a href="register.html">Register</a>
+        </div>
+        <div id="loginMsg" style="margin-top:15px;text-align:center;color:#e53e3e;"></div>
     </div>
+    <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const growid = document.getElementById('growid').value.trim();
+        const password = document.getElementById('password').value;
+
+        // Contoh: Cek ke Supabase (ganti sesuai backend Anda)
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('growid', growid)
+            .eq('password', password)
+            .maybeSingle();
+
+        if (error || !data) {
+            document.getElementById('loginMsg').textContent = "Login gagal: GrowID atau password salah.";
+        } else {
+            // Simpan session dan langsung redirect ke user.html
+            localStorage.setItem('gt_session', JSON.stringify({ growid }));
+            window.location = "user.html";
+        }
+    });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/auth.js"></script>
-    <script>
-    if (localStorage.getItem('gt_session')) {
-        window.location = "user.html";
-    }
-    </script>
 </body>
 </html>
