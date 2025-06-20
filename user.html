@@ -643,41 +643,42 @@
         }
     });
 
-    async function fetchHistory() {
-        const { data, error } = await supabase
-            .from('daily_sales')
-            .select('*')
-            .eq('growid', session.growid)
-            .order('tanggal', { ascending: false });
-        const historyTable = document.getElementById('historyTable');
-        if (error || !data || data.length === 0) {
-            historyTable.innerHTML = '<div style="color:#718096;text-align:center;padding:20px;">Belum ada history pembelian.</div>';
-            return;
-        }
-        historyTable.innerHTML = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Jumlah</th>
-                        <th>Harga/Item</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.map(row => `
-                        <tr>
-                            <td>${new Date(row.tanggal).toLocaleString()}</td>
-                            <td>${row.jumlah}</td>
-                            <td>${row.harga} WL</td>
-                            <td>${row.total} WL</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
+    // ...existing code...
+async function fetchHistory() {
+    const { data, error } = await supabase
+        .from('daily_sales')
+        .select('*')
+        .order('tanggal', { ascending: false }); // Hapus .eq('growid', session.growid)
+    const historyTable = document.getElementById('historyTable');
+    if (error || !data || data.length === 0) {
+        historyTable.innerHTML = '<div style="color:#718096;text-align:center;padding:20px;">Belum ada history pembelian.</div>';
+        return;
     }
-
+    historyTable.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>GrowID</th>
+                    <th>Tanggal</th>
+                    <th>Jumlah</th>
+                    <th>Harga/Item</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.map(row => `
+                    <tr>
+                        <td>${row.growid || '-'}</td>
+                        <td>${new Date(row.tanggal).toLocaleString()}</td>
+                        <td>${row.jumlah}</td>
+                        <td>${row.harga} WL</td>
+                        <td>${row.total} WL</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
     function showNotification(message, type) {
         const existingNotification = document.querySelector('.notification');
         if (existingNotification) existingNotification.remove();
