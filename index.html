@@ -468,46 +468,54 @@
       setTimeout(() => { loadDeposit(); }, 1000);
     };
 
-    // === LOGIKA PENAMBAHAN STOCK DAN ACTIVITY LOG (SUPABASE) ===
+    // === LOGIKA PENAMBAHAN STOCK DAN ACTIVITY LOG (SUPABASE activities) ===
 
     const addBtn = document.getElementById('add-btn');
     const newEmail = document.getElementById('newEmail');
     const newPassword = document.getElementById('newPassword');
     const activityLog = document.getElementById('activityLog');
+    // Ambil nama admin dari session
+    const session = JSON.parse(localStorage.getItem('gt_session') || '{}');
+    const adminName = session?.user?.name || session?.user_name || 'Admin';
 
     addBtn.onclick = async function() {
         const email = newEmail.value.trim();
         const password = newPassword.value.trim();
         if (!email || !password) {
-            await addActivityLog('Gagal menambah stock: Email dan Password wajib diisi.', 'error');
+            await addActivityLog(adminName, 'Gagal menambah stock: Email dan Password wajib diisi.');
             await loadActivityLog();
             return;
         }
         const { error } = await supabase.from('stock_items').insert([{ email, password, status: 'available' }]);
         if (!error) {
-            await addActivityLog(`Tambah Gmail: ${email}`, 'success');
+            await addActivityLog(adminName, `Tambah Gmail: ${email}`);
             newEmail.value = '';
             newPassword.value = '';
             loadStockItems();
         } else {
-            await addActivityLog('Gagal menambah stock: ' + (error.message || ''), 'error');
+            await addActivityLog(adminName, 'Gagal menambah stock: ' + (error.message || ''));
         }
         await loadActivityLog();
     };
 
-    // Fungsi menambah log ke tabel activity_logs Supabase
-    async function addActivityLog(message, type = 'info') {
-        await supabase.from('activity_logs').insert([{ message, type }]);
+    // Fungsi menambah log ke tabel activities Supabase
+    async function addActivityLog(user_name, action) {
+        await supabase.from('activities').insert([{ user_name, action }]);
     }
 
     // Fungsi load activity log dari Supabase
     async function loadActivityLog() {
-        const { data, error } = await supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(50);
+        const { data, error } = await supabase
+            .from('activities')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(50);
         if (!error && data) {
             activityLog.innerHTML = data.map(log =>
                 `<div>
-                    <span style="color:#888;">[${new Date(log.created_at).toLocaleTimeString()}]</span>
-                    <span style="color:${log.type === 'success' ? '#48bb78' : log.type === 'error' ? '#e53e3e' : '#333'};">${log.message}</span>
+                    <span style="color:#888;">[${new Date(log.timestamp).toLocaleTimeString()}]</span>
+                    <b>${log.user_name}:</b>
+                    <span>${log.action}</span>
                 </div>`
             ).join('');
         } else {
@@ -543,8 +551,8 @@
     loadStockItems();
     loadActivityLog();
 
-    // Optional: tombol refresh activity log
-    // setInterval(loadActivityLog, 10000); // auto-refresh tiap 10 detik
+    // Optional: auto-refresh activity log
+    // setInterval(loadActivityLog, 10000);
     </script>
 </body>
 </html>
