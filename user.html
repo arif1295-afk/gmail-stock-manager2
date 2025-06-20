@@ -780,9 +780,12 @@
       .channel('public:settings')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'settings', filter: 'key=eq.gmail_price' },
+        { event: '*', schema: 'public', table: 'settings' },
         payload => {
-          fetchHargaGmail();
+          // Hanya jalankan jika key yang berubah adalah gmail_price
+          if (payload.new && payload.new.key === 'gmail_price') {
+            fetchHargaGmail();
+          }
         }
       )
       .subscribe();
