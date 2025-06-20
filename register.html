@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT Marketplace - Register</title>
+    <script>
+    // Redirect jika sudah login, sebelum apapun dirender
+    if (localStorage.getItem('gt_session')) {
+        window.location = "user.html";
+    }
+    </script>
     <style>
         body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; display: flex; align-items: center; justify-content: center; }
         .auth-container { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
@@ -38,18 +44,10 @@
         <div id="registerMsg" style="margin-top:15px;text-align:center;color:#e53e3e;"></div>
     </div>
     <script>
-    // Redirect jika sudah login
-    if (localStorage.getItem('gt_session')) {
-        window.location = "user.html";
-    }
-
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const growid = document.getElementById('growid').value.trim();
         const password = document.getElementById('password').value;
-        const msg = document.getElementById('registerMsg');
-        msg.style.color = "#e53e3e";
-        msg.textContent = "Memproses...";
 
         // Contoh: Simpan ke Supabase (ganti sesuai backend Anda)
         const { data, error } = await supabase
@@ -57,11 +55,9 @@
             .insert([{ growid, password }]);
 
         if (error) {
-            msg.textContent = "Registrasi gagal: " + (error.message || "Terjadi kesalahan.");
+            document.getElementById('registerMsg').textContent = "Registrasi gagal: " + (error.message || "Terjadi kesalahan.");
         } else {
-            msg.style.color = "#38a169";
-            msg.textContent = "Registrasi berhasil! Silakan login.";
-            setTimeout(() => window.location = "login.html", 1500);
+            window.location = "login.html";
         }
     });
     </script>
