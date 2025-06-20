@@ -507,8 +507,8 @@
             .maybeSingle();
         if (data && data.value) {
             hargaGmail = parseInt(data.value, 10);
-        } else {
-            hargaGmail = 5;
+            renderProducts();
+            updateCartDisplay();
         }
     }
 
@@ -765,6 +765,14 @@
           fetchProducts();
         }
       )
+      .subscribe();
+
+    // Realtime deposit world
+    supabase
+      .channel('realtime:user_deposits')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_deposits' }, payload => {
+          showDepositData();
+      })
       .subscribe();
 
     // === DEPOSIT MODAL & CAPTCHA MATEMATIKA ===
