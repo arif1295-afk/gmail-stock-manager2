@@ -471,6 +471,21 @@
       </div>
     </div>
 
+    <!-- Floating Message Button -->
+    <div id="floatingMessageBtn" style="position:fixed;bottom:32px;right:32px;z-index:1003;cursor:pointer;">
+        <img src="https://cdn-icons-png.flaticon.com/512/2462/2462719.png" alt="Message" style="width:64px;height:64px;border-radius:50%;box-shadow:0 4px 16px #0003;background:#fff;">
+    </div>
+
+    <!-- Modal Pilihan Room -->
+    <div id="messageRoomModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1004;background:#0007;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 28px;border-radius:18px;max-width:340px;width:90%;box-shadow:0 8px 32px #0002;display:flex;flex-direction:column;align-items:center;gap:24px;position:relative;">
+            <button id="closeMessageRoomModal" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;">&times;</button>
+            <h2 style="margin-bottom:10px;color:#4a5568;">Pilih Room Chat</h2>
+            <button class="room-btn" style="width:100%;padding:14px 0;border-radius:12px;font-size:1.1em;font-weight:bold;background:linear-gradient(45deg,#667eea,#764ba2);color:#fff;border:none;cursor:pointer;transition:background 0.2s;">Room Global</button>
+            <button class="room-btn" style="width:100%;padding:14px 0;border-radius:12px;font-size:1.1em;font-weight:bold;background:linear-gradient(45deg,#48bb78,#38a169);color:#fff;border:none;cursor:pointer;transition:background 0.2s;">Admin</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="js/supabase.js"></script>
     <script>
@@ -866,6 +881,22 @@
         </div>
       `).join('');
     }
+
+    // Floating message popup logic
+    const floatingMessageBtn = document.getElementById('floatingMessageBtn');
+    const messageRoomModal = document.getElementById('messageRoomModal');
+    const closeMessageRoomModal = document.getElementById('closeMessageRoomModal');
+
+    floatingMessageBtn.onclick = () => {
+        messageRoomModal.style.display = 'flex';
+    };
+    closeMessageRoomModal.onclick = () => {
+        messageRoomModal.style.display = 'none';
+    };
+    // Optional: close modal if click outside modal content
+    messageRoomModal.onclick = (e) => {
+        if (e.target === messageRoomModal) messageRoomModal.style.display = 'none';
+    };
     </script>
 </body>
 </html>
