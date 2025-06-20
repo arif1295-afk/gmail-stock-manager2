@@ -14,34 +14,58 @@
         .form-input:focus { outline: none; border-color: #667eea; }
         .submit-btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: all 0.3s ease; }
         .submit-btn:hover { background: linear-gradient(45deg, #5a67d8, #6b46c1); transform: translateY(-2px); }
-        .switch-link { display: block; text-align: center; margin-top: 18px; color: #667eea; text-decoration: none; font-weight: bold; }
-        .notification { margin-bottom: 15px; padding: 12px 18px; border-radius: 10px; color: white; font-weight: bold; background: linear-gradient(45deg, #e53e3e, #c53030); text-align: center; }
-        .notification.success { background: linear-gradient(45deg, #48bb78, #38a169); }
+        .login-link { text-align: center; margin-top: 16px; }
+        .login-link a { color: #667eea; text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-title">Register User</div>
-        <div id="notif"></div>
+        <div class="auth-title">Register</div>
         <form id="registerForm">
             <div class="form-group">
-                <label class="form-label">GrowID</label>
-                <input type="text" class="form-input" id="regGrowID" required>
+                <label class="form-label" for="growid">GrowID</label>
+                <input class="form-input" type="text" id="growid" name="growid" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="regPassword" required>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" id="password" name="password" required>
             </div>
-            <div class="form-group">
-                <label class="form-label">Gmail Aktif</label>
-                <input type="email" class="form-input" id="regGmail" required>
-            </div>
-            <button type="submit" class="submit-btn">Register</button>
+            <button class="submit-btn" type="submit">Register</button>
         </form>
-        <a href="login.html" class="switch-link">Sudah punya akun? Login</a>
+        <div class="login-link">
+            Sudah punya akun? <a href="login.html">Login</a>
+        </div>
+        <div id="registerMsg" style="margin-top:15px;text-align:center;color:#e53e3e;"></div>
     </div>
+    <script>
+    // Redirect jika sudah login
+    if (localStorage.getItem('gt_session')) {
+        window.location = "user.html";
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const growid = document.getElementById('growid').value.trim();
+        const password = document.getElementById('password').value;
+        const msg = document.getElementById('registerMsg');
+        msg.style.color = "#e53e3e";
+        msg.textContent = "Memproses...";
+
+        // Contoh: Simpan ke Supabase (ganti sesuai backend Anda)
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ growid, password }]);
+
+        if (error) {
+            msg.textContent = "Registrasi gagal: " + (error.message || "Terjadi kesalahan.");
+        } else {
+            msg.style.color = "#38a169";
+            msg.textContent = "Registrasi berhasil! Silakan login.";
+            setTimeout(() => window.location = "login.html", 1500);
+        }
+    });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/auth.js"></script>
 </body>
 </html>

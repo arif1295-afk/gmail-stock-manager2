@@ -412,6 +412,10 @@
         const session = JSON.parse(localStorage.getItem('gt_session'));
         if (session.isAdmin) window.location = "index.html";
     }
+    // Cegah kembali ke login.html setelah login
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.href);
+    }
     </script>
 </head>
 <body>
