@@ -819,40 +819,40 @@
     });
 
     async function showDepositData() {
-      const session = JSON.parse(localStorage.getItem('gt_session') || '{}');
-      const growid = session.growid || '';
       depositData.innerHTML = 'Memuat data...';
+      // Ambil data deposit world dari tabel user_deposits
       const { data, error } = await supabase
         .from('user_deposits')
         .select('*')
-        .eq('growid', growid)
         .order('id', { ascending: false });
+
       if (error || !data || data.length === 0) {
-        depositData.innerHTML = '<div class="no-data">Belum ada data deposit.</div>';
+        depositData.innerHTML = '<div class="no-data">Belum ada data deposit world.</div>';
         return;
       }
+
       depositData.innerHTML = `
-        <table class="deposit-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>World</th>
-                    <th>Owner</th>
-                    <th>Bot</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data.map(row => `
-                    <tr>
-                        <td>${row.id}</td>
-                        <td>${row.world_name || ''}</td>
-                        <td>${row.owner_name || ''}</td>
-                        <td>${row.bot_name || ''}</td>
-                        <td>${row.status ? 'Active' : 'Inactive'}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
+        <table class="deposit-table" style="width:100%;margin-top:10px;">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>World Name</th>
+              <th>Bot Name</th>
+              <th>Owner Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(row => `
+              <tr>
+                <td>${row.id}</td>
+                <td>${row.world_name}</td>
+                <td>${row.bot_name}</td>
+                <td>${row.owner_name}</td>
+                <td>${row.status ? 'Aktif' : 'Nonaktif'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
         </table>
       `;
     }
