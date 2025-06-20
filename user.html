@@ -500,7 +500,7 @@
     }
 
     async function fetchHargaGmail() {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('settings')
             .select('value')
             .eq('key', 'gmail_price')
